@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ServiceCRM-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: voimax
+      POSTGRES_PASSWORD: voimaxis2026
+      POSTGRES_DB: ServiceCRM
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: ServiceCRM-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

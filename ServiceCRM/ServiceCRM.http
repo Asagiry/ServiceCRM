@@ -1,0 +1,6 @@
+@ServiceCRM_HostAddress = http://localhost:5041
+
+GET {{ServiceCRM_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
