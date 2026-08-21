@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Class.Laed;
 using ServiceCRM.Class.Lead;
 using ServiceCRM.DTOs.LeadSourceDTOs;
 using ServiceCRM.Services.LeadSourceService;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 
 namespace ServiceCRM.Controllers
 {
@@ -20,16 +18,16 @@ namespace ServiceCRM.Controllers
         }
 
         [HttpGet]
-        [EndpointSummary("")]
+        [EndpointSummary("Получить список источников с рекламными компаниями")]
         public async Task<ActionResult<List<LeadSource>>> GetLeadSources()
         {
             return Ok(await _leadSourceService.GetLeadSourcesAsync());
         }
 
         [HttpGet("{id}")]
-        [EndpointSummary("")]
+        [EndpointSummary("Получить источник с рекламными компаниями")]
         public async Task<ActionResult<LeadSource>> GetLeadSourceById(
-            [FromRoute][Description()]int id)
+            [FromRoute][Description("Id искомого источника")]int id)
         {
             LeadSource? leadSource = await _leadSourceService.GetLeadSourceByIdAsync(id);
 
@@ -44,9 +42,9 @@ namespace ServiceCRM.Controllers
         }
 
         [HttpPost]
-        [EndpointSummary("")]
+        [EndpointSummary("Создать новый источник по Dto")]
         public async Task<ActionResult<LeadSource>> CreateLeadSource(
-            [FromBody][Description]CreateLeadSourceDto dto)
+            [FromBody][Description("Dto создаваемого источника")]CreateLeadSourceDto dto)
         {
             LeadSource leadSource = await _leadSourceService.CreateLeadSourceAsync(dto);
 
@@ -54,10 +52,10 @@ namespace ServiceCRM.Controllers
         }
 
         [HttpPut("{id}")]
-        [EndpointSummary("")]
+        [EndpointSummary("Обновить источник по Id и Dto")]
         public async Task<ActionResult<LeadSource>> UpdateLeadSource(
-            [FromRoute][Description]int id,
-            [FromBody][Description]UpdateLeadSourceDto dto)
+            [FromRoute][Description("Id обновляемого источника")]int id,
+            [FromBody][Description("Dto обновляемого источника")]UpdateLeadSourceDto dto)
         {
             LeadSource? leadsource = await _leadSourceService.UpdateLeadSourceAsync(id, dto);
 
@@ -72,9 +70,9 @@ namespace ServiceCRM.Controllers
         }
 
         [HttpDelete("{id}")]
-        [EndpointSummary("")]
+        [EndpointSummary("Удалить источник по id")]
         public async Task<ActionResult<LeadSource>> DeleteLeadSource(
-            [FromRoute][Description]int id)
+            [FromRoute][Description("Id удаляемого источника")]int id)
         {
             LeadSource? leadSource = await _leadSourceService.DeleteLeadSourceAsync(id);
 
@@ -89,10 +87,10 @@ namespace ServiceCRM.Controllers
         }
 
         [HttpPost("{id}/expenses")]
-        [EndpointSummary("")]
+        [EndpointSummary("Создать рекламную компанию для источника")]
         public async Task<ActionResult<AdExpense>> CreateAdExpense(
-            [FromRoute][Description]int id,
-            [FromBody][Description]CreateAdExpenseDto dto)
+            [FromRoute][Description("Id источника")]int id,
+            [FromBody][Description("Dto новой рекламной компании")]CreateAdExpenseDto dto)
         {
             AdExpense? adExpense = await _leadSourceService.CreateAdExpenseAsync(id, dto);
 
@@ -107,9 +105,9 @@ namespace ServiceCRM.Controllers
         }
 
         [HttpDelete("expenses/{id}")]
-        [EndpointSummary("")]
+        [EndpointSummary("Удалить рекламную компанию источника")]
         public async Task<ActionResult<AdExpense>> DeleteAdExpense(
-            [FromRoute][Description]int id)
+            [FromRoute][Description("Id рекламной компании")]int id)
         {
             AdExpense? adExpense = await _leadSourceService.DeleteAdExpenseAsync(id);
 

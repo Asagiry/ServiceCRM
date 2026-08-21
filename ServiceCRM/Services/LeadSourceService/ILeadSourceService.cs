@@ -1,5 +1,4 @@
-﻿using ServiceCRM.Class.Laed;
-using ServiceCRM.Class.Lead;
+﻿using ServiceCRM.Class.Lead;
 using ServiceCRM.DTOs.LeadSourceDTOs;
 
 namespace ServiceCRM.Services.LeadSourceService

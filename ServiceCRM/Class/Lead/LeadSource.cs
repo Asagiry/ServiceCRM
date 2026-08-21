@@ -1,9 +1,8 @@
-﻿using ServiceCRM.Class.Lead;
-using ServiceCRM.DTOs.LeadSourceDTOs;
+﻿using ServiceCRM.DTOs.LeadSourceDTOs;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ServiceCRM.Class.Laed
+namespace ServiceCRM.Class.Lead
 {
     [Description("Источник лидов")]
     public class LeadSource
@@ -24,7 +23,7 @@ namespace ServiceCRM.Class.Laed
         public List<AdExpense> AdExpenses { get; set; } = [];
 
         [Description("Используется ли этот лид в данный момент")]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         [Description("Дата создания источника")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

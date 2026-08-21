@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ServiceCRM.Class.Laed;
 using ServiceCRM.Class.Lead;
 using ServiceCRM.DTOs.LeadSourceDTOs;
 

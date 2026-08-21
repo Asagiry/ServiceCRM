@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class;
-using ServiceCRM.Class.Laed;
 using ServiceCRM.Class.Lead;
-using System.Reflection.Emit;
 namespace ServiceCRM
 {
     public class AppDbContext : DbContext

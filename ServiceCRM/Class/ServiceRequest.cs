@@ -1,4 +1,4 @@
-﻿using ServiceCRM.Class.Laed;
+﻿using ServiceCRM.Class.Lead;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
