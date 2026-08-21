@@ -1,4 +1,5 @@
-﻿using ServiceCRM.DTOs.ServiceRequestDTOs;
+﻿using ServiceCRM.Class.Laed;
+using ServiceCRM.DTOs.ServiceRequestDTOs;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
@@ -6,9 +7,11 @@ namespace ServiceCRM.Class
 {
     public class ServiceRequest
     {
-        // Навигационные свойства:
+        #region Nav
         public Client? Client { get; set; }
         public Master? Master { get; set; }
+        public LeadSource? LeadSource { get; set; }
+        #endregion Nav
 
         [Description("Id заявки")]
         public int Id { get; set; }
@@ -21,7 +24,7 @@ namespace ServiceCRM.Class
         [Description("Адрес заявки")]
         public required string Address { get; set; }
         [Description("Откуда пришла заявка")]
-        public required string Source { get; set; }
+        public required int SourceId { get; set; }
         [Description("Описание проблемы")]
         public required string ProblemDescription { get; set; }
         [Description("Тип техники")]
@@ -45,7 +48,7 @@ namespace ServiceCRM.Class
             ClientId = dto.ClientId;
             City = dto.City;
             Address = dto.Address;
-            Source = dto.Source;
+            SourceId = dto.SourceId;
             ProblemDescription = dto.ProblemDescription;
             EquipmentType = dto.EquipmentType;
             SheduledAt = dto.SheduledAt;
@@ -57,7 +60,7 @@ namespace ServiceCRM.Class
             MasterId = dto.MasterId;
             City = dto.City;
             Address = dto.Address;
-            Source = dto.Source;
+            SourceId = dto.SourceId;
             ProblemDescription = dto.ProblemDescription;
             EquipmentType = dto.EquipmentType;
             SheduledAt = dto.SheduledAt;

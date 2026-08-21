@@ -19,19 +19,18 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
                 .NotEmpty()
                 .Length(5, 100);
 
-            RuleFor(x => x.Source)
-               .NotEmpty()
-               .Length(0, 20);
+            RuleFor(x => x.SourceId)
+                .GreaterThan(0)
+                .WithMessage("Необходимо указать корректный Id источника.");
 
             RuleFor(x => x.ProblemDescription)
                .NotEmpty()
-               .Length(0, 25);
+               .Length(0, 500);
 
             RuleFor(x => x.EquipmentType)
                 .NotEmpty()
                 .Length(0, 25);
 
-            RuleFor(x => x.)
 
         }
     }

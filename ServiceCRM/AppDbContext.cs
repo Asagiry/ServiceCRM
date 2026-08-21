@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class;
+using ServiceCRM.Class.Laed;
+using ServiceCRM.Class.Lead;
+using System.Reflection.Emit;
 namespace ServiceCRM
 {
     public class AppDbContext : DbContext
@@ -8,6 +11,8 @@ namespace ServiceCRM
         public DbSet<Master> Masters => Set<Master>();
         public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
         public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<LeadSource> LeadSources => Set<LeadSource>();
+        public DbSet<AdExpense> AdExpenses => Set<AdExpense>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
         {
@@ -18,11 +23,22 @@ namespace ServiceCRM
         {
             base.OnModelCreating(modelBuilder);
 
+            setServiceRequestDb(modelBuilder);
+
+            setPaymentDb(modelBuilder);
+
+            setMasterDb(modelBuilder);
+
+            setLeadSourceDb(modelBuilder);
+        }
+
+        public void setServiceRequestDb(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<ServiceRequest>()
-                .HasOne(m => m.Master)
-                .WithMany(r => r.Requests)
-                .HasForeignKey(m => m.MasterId)
-                .OnDelete(DeleteBehavior.SetNull);
+               .HasOne(m => m.Master)
+               .WithMany(r => r.Requests)
+               .HasForeignKey(m => m.MasterId)
+               .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<ServiceRequest>()
                 .HasOne(r => r.Client)
@@ -37,14 +53,38 @@ namespace ServiceCRM
             modelBuilder.Entity<ServiceRequest>()
                 .Property(r => r.DirectExpenses)
                 .HasPrecision(18, 2);
+        }
 
+        public void setPaymentDb(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+        }
 
+        public void setMasterDb(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Master>()
                 .Property(m => m.CommissionPercent)
                 .HasPrecision(5, 2);
+        }
+        
+        public void setLeadSourceDb(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<LeadSource>()
+                .Property(s => s.TargetWeeklyBudget)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<AdExpense>()
+                .Property(a => a.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<AdExpense>()
+                .HasOne(x => x.LeadSource)
+                .WithMany(x => x.AdExpenses)
+                .HasForeignKey(x => x.LeadSourceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

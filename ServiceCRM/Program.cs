@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceCRM;
 using ServiceCRM.Class;
 using ServiceCRM.Middlewares;
+using ServiceCRM.Services.LeadSourceService;
 using ServiceCRM.Services.MasterServices;
 using ServiceCRM.Services.ServiceRequestServices;
 using System.Reflection;
@@ -24,6 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
+builder.Services.AddScoped<ILeadSourceService, LeadSourceService>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
