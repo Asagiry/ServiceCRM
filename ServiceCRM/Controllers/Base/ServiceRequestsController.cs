@@ -4,7 +4,7 @@ using ServiceCRM.DTOs.ServiceRequestDTOs;
 using ServiceCRM.Services.ServiceRequestServices;
 using System.ComponentModel;
 
-namespace ServiceCRM.Controllers
+namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
     [Route("api/requests")]

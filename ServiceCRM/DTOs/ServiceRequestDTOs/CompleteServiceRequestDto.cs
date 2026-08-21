@@ -9,5 +9,8 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
         public decimal TotalPrice { get; set; }
         [Description("Затраты на ремонт")]
         public decimal DirectExpenses { get; set; }
+
+        [Description("Выплата мастеру")]
+        public decimal MasterPayout { get; set; }
     }
 }

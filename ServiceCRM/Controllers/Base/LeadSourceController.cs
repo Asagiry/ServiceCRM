@@ -4,7 +4,7 @@ using ServiceCRM.DTOs.LeadSourceDTOs;
 using ServiceCRM.Services.LeadSourceService;
 using System.ComponentModel;
 
-namespace ServiceCRM.Controllers
+namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
     [Route("api/lead-sources")]

@@ -15,8 +15,8 @@ namespace ServiceCRM.DTOs.AnalyticsDTOs
         public int CompletedTodayCount { get; set; }
         [Description("Общий оборот за сегодня")]
         public decimal RevenueToday { get; set; }
-        [Description("Расходы на запачсти за сегодня")]
-        public decimal ExcpensesToday { get; set; }
+        [Description("Расходы на запчасти за сегодня")]
+        public decimal ExpensesToday { get; set; }
         [Description("Выплаты мастерам за сегодня")]
         public decimal MasterPayoutsToday { get; set; }
         [Description("Чистая прибыль владельца")]

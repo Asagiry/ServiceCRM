@@ -3,7 +3,7 @@ using ServiceCRM.Class;
 using ServiceCRM.DTOs.ClientDTOs;
 using System.ComponentModel;
 
-namespace ServiceCRM.Controllers
+namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
     [Route("api/clients")]

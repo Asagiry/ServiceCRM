@@ -4,7 +4,7 @@ using ServiceCRM.DTOs.MasterDTOs;
 using ServiceCRM.Services.MasterServices;
 using System.ComponentModel;
 
-namespace ServiceCRM.Controllers
+namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
     [Route("api/masters")]

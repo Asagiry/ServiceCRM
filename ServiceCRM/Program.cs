@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceCRM;
 using ServiceCRM.Class;
 using ServiceCRM.Middlewares;
+using ServiceCRM.Services.AnalyticsServices;
 using ServiceCRM.Services.LeadSourceService;
 using ServiceCRM.Services.MasterServices;
 using ServiceCRM.Services.ServiceRequestServices;
@@ -26,10 +27,16 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
 builder.Services.AddScoped<ILeadSourceService, LeadSourceService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "OrderService_";
+});
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
