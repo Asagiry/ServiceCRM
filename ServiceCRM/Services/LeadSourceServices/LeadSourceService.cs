@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class.Lead;
 using ServiceCRM.DTOs.LeadSourceDTOs;
 
@@ -13,34 +13,46 @@ namespace ServiceCRM.Services.LeadSourceService
             _context = context;
         }
 
-        public async Task<List<LeadSource>> GetLeadSourcesAsync()
+        public async Task<List<LeadSource>> GetLeadSourcesAsync(
+            CancellationToken ct = default)
         {
             return await _context.LeadSources
+                .AsNoTracking()
                 .Include(x => x.AdExpenses)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task<LeadSource?> GetLeadSourceByIdAsync(int id)
+        public async Task<LeadSource?> GetLeadSourceByIdAsync(
+            int id,
+            CancellationToken ct = default)
         {
             return await _context.LeadSources
+                .AsNoTracking()
                 .Include(x => x.AdExpenses)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id, ct);
         }
 
-        public async Task<LeadSource> CreateLeadSourceAsync(CreateLeadSourceDto dto)
+        public async Task<LeadSource> CreateLeadSourceAsync(
+            CreateLeadSourceDto dto,
+            CancellationToken ct = default)
         {
             LeadSource leadSource = new LeadSource(dto);
 
             _context.LeadSources.Add(leadSource);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return leadSource;
         }
 
-        public async Task<LeadSource?> UpdateLeadSourceAsync(int id, UpdateLeadSourceDto dto)
+      
+
+        public async Task<LeadSource?> UpdateLeadSourceAsync(
+            int id, 
+            UpdateLeadSourceDto dto,
+            CancellationToken ct = default)
         {
-            LeadSource? leadSource = await _context.LeadSources.FindAsync(id);
+            LeadSource? leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (leadSource == null)
             {
@@ -49,14 +61,16 @@ namespace ServiceCRM.Services.LeadSourceService
 
             leadSource.UpdateFromDto(dto);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return leadSource;
         }
 
-        public async Task<LeadSource?> DeleteLeadSourceAsync(int id)
+        public async Task<LeadSource?> DeleteLeadSourceAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            LeadSource? leadSource = await _context.LeadSources.FindAsync(id);
+            LeadSource? leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (leadSource == null)
             {
@@ -65,14 +79,17 @@ namespace ServiceCRM.Services.LeadSourceService
 
             _context.LeadSources.Remove(leadSource);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return leadSource;
         }
 
-        public async Task<AdExpense?> CreateAdExpenseAsync(int leadSourceId, CreateAdExpenseDto dto)
+        public async Task<AdExpense?> CreateAdExpenseAsync(
+            int leadSourceId, 
+            CreateAdExpenseDto dto,
+            CancellationToken ct = default)
         {
-            LeadSource? leadSource = await _context.LeadSources.FindAsync(leadSourceId);
+            LeadSource? leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == leadSourceId, ct);
 
             if (leadSource == null)
             {
@@ -83,15 +100,17 @@ namespace ServiceCRM.Services.LeadSourceService
 
             _context.AdExpenses.Add(adExpense);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return adExpense;
 
         }
 
-        public async Task<AdExpense?> DeleteAdExpenseAsync(int id)
+        public async Task<AdExpense?> DeleteAdExpenseAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            AdExpense? adExpense = await _context.AdExpenses.FindAsync(id);
+            AdExpense? adExpense = await _context.AdExpenses.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (adExpense == null)
             {
@@ -100,7 +119,7 @@ namespace ServiceCRM.Services.LeadSourceService
 
             _context.AdExpenses.Remove(adExpense);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return adExpense;
 

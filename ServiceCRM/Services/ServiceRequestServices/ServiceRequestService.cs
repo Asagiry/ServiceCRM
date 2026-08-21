@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
@@ -16,9 +16,13 @@ namespace ServiceCRM.Services.ServiceRequestServices
         }
 
 
-        public async Task<List<ServiceRequest>> GetServiceRequestsAsync(RequestStatus? status, int? masterId, DateTime? dateTime)
+        public async Task<List<ServiceRequest>> GetServiceRequestsAsync(
+            RequestStatus? status,
+            int? masterId,
+            DateTime? dateTime,
+            CancellationToken ct = default)
         {
-            var query = _context.ServiceRequests.AsQueryable();
+            var query = _context.ServiceRequests.AsNoTracking();
 
             if (status != null)
             {
@@ -40,30 +44,38 @@ namespace ServiceCRM.Services.ServiceRequestServices
             return await query
                 .Include(x => x.Master)
                 .Include(x => x.Client)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task<ServiceRequest?> GetServiceRequestByIdAsync(int id)
+        public async Task<ServiceRequest?> GetServiceRequestByIdAsync(
+            int id,
+            CancellationToken ct = default)
         {
             return await _context.ServiceRequests
+                .AsNoTracking()
                 .Include(x => x.Master)
                 .Include(x => x.Client)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id, ct);
         }
-        public async Task<ServiceRequest> CreateServiceRequestAsync(CreateServiceRequestDto dto)
+        public async Task<ServiceRequest> CreateServiceRequestAsync(
+            CreateServiceRequestDto dto,
+            CancellationToken ct = default)
         {
             ServiceRequest serviceRequest = new ServiceRequest(dto);
          
 
             _context.ServiceRequests.Add(serviceRequest);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return serviceRequest;
          }
-        public async Task<ServiceRequest?> UpdateServiceRequestAsync(int id, UpdateServiceRequestDto dto)
+        public async Task<ServiceRequest?> UpdateServiceRequestAsync(
+            int id, 
+            UpdateServiceRequestDto dto,
+            CancellationToken ct = default)
         {
-            ServiceRequest? serviceRequest = await _context.ServiceRequests.FindAsync(id);
+            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (serviceRequest == null)
             {
@@ -72,14 +84,17 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             serviceRequest.UpdateServiceRequest(dto);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return serviceRequest;
         }
 
-        public async Task<ServiceRequest?> CompleteServiceRequestAsync(int id, CompleteServiceRequestDto dto)
+        public async Task<ServiceRequest?> CompleteServiceRequestAsync(
+            int id, 
+            CompleteServiceRequestDto dto,
+            CancellationToken ct = default)
         {
-            ServiceRequest? serviceRequest = await _context.ServiceRequests.FindAsync(id);
+            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (serviceRequest == null)
             {
@@ -88,16 +103,18 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             serviceRequest.CompleteServiceRequest(dto);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return serviceRequest;
         }
 
         
 
-        public async Task<ServiceRequest?> DeleteServiceRequestAsync(int id)
+        public async Task<ServiceRequest?> DeleteServiceRequestAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            ServiceRequest? serviceRequest = await _context.ServiceRequests.FindAsync(id);
+            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (serviceRequest == null)
             {
@@ -106,7 +123,7 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             _context.ServiceRequests.Remove(serviceRequest);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return serviceRequest;
         }

@@ -19,17 +19,19 @@ namespace ServiceCRM.Controllers.Base
 
         [HttpGet]
         [EndpointSummary("Получить список источников с рекламными компаниями")]
-        public async Task<ActionResult<List<LeadSource>>> GetLeadSources()
+        public async Task<ActionResult<List<LeadSource>>> GetLeadSources(
+            CancellationToken ct)
         {
-            return Ok(await _leadSourceService.GetLeadSourcesAsync());
+            return Ok(await _leadSourceService.GetLeadSourcesAsync(ct));
         }
 
         [HttpGet("{id}")]
         [EndpointSummary("Получить источник с рекламными компаниями")]
         public async Task<ActionResult<LeadSource>> GetLeadSourceById(
-            [FromRoute][Description("Id искомого источника")]int id)
+            [FromRoute][Description("Id искомого источника")]int id,
+            CancellationToken ct)
         {
-            LeadSource? leadSource = await _leadSourceService.GetLeadSourceByIdAsync(id);
+            LeadSource? leadSource = await _leadSourceService.GetLeadSourceByIdAsync(id, ct);
 
             if (leadSource != null)
             {
@@ -44,9 +46,10 @@ namespace ServiceCRM.Controllers.Base
         [HttpPost]
         [EndpointSummary("Создать новый источник по Dto")]
         public async Task<ActionResult<LeadSource>> CreateLeadSource(
-            [FromBody][Description("Dto создаваемого источника")]CreateLeadSourceDto dto)
+            [FromBody][Description("Dto создаваемого источника")]CreateLeadSourceDto dto,
+            CancellationToken ct)
         {
-            LeadSource leadSource = await _leadSourceService.CreateLeadSourceAsync(dto);
+            LeadSource leadSource = await _leadSourceService.CreateLeadSourceAsync(dto, ct);
 
             return CreatedAtAction(nameof(GetLeadSourceById), new { id = leadSource.Id }, leadSource);
         }
@@ -55,9 +58,10 @@ namespace ServiceCRM.Controllers.Base
         [EndpointSummary("Обновить источник по Id и Dto")]
         public async Task<ActionResult<LeadSource>> UpdateLeadSource(
             [FromRoute][Description("Id обновляемого источника")]int id,
-            [FromBody][Description("Dto обновляемого источника")]UpdateLeadSourceDto dto)
+            [FromBody][Description("Dto обновляемого источника")]UpdateLeadSourceDto dto,
+            CancellationToken ct)
         {
-            LeadSource? leadsource = await _leadSourceService.UpdateLeadSourceAsync(id, dto);
+            LeadSource? leadsource = await _leadSourceService.UpdateLeadSourceAsync(id, dto, ct);
 
             if (leadsource != null)
             {
@@ -72,9 +76,10 @@ namespace ServiceCRM.Controllers.Base
         [HttpDelete("{id}")]
         [EndpointSummary("Удалить источник по id")]
         public async Task<ActionResult<LeadSource>> DeleteLeadSource(
-            [FromRoute][Description("Id удаляемого источника")]int id)
+            [FromRoute][Description("Id удаляемого источника")]int id,
+            CancellationToken ct)
         {
-            LeadSource? leadSource = await _leadSourceService.DeleteLeadSourceAsync(id);
+            LeadSource? leadSource = await _leadSourceService.DeleteLeadSourceAsync(id, ct);
 
             if (leadSource != null)
             {
@@ -90,9 +95,10 @@ namespace ServiceCRM.Controllers.Base
         [EndpointSummary("Создать рекламную компанию для источника")]
         public async Task<ActionResult<AdExpense>> CreateAdExpense(
             [FromRoute][Description("Id источника")]int id,
-            [FromBody][Description("Dto новой рекламной компании")]CreateAdExpenseDto dto)
+            [FromBody][Description("Dto новой рекламной компании")]CreateAdExpenseDto dto,
+            CancellationToken ct)
         {
-            AdExpense? adExpense = await _leadSourceService.CreateAdExpenseAsync(id, dto);
+            AdExpense? adExpense = await _leadSourceService.CreateAdExpenseAsync(id, dto, ct);
 
             if (adExpense != null)
             {
@@ -107,9 +113,10 @@ namespace ServiceCRM.Controllers.Base
         [HttpDelete("expenses/{id}")]
         [EndpointSummary("Удалить рекламную компанию источника")]
         public async Task<ActionResult<AdExpense>> DeleteAdExpense(
-            [FromRoute][Description("Id рекламной компании")]int id)
+            [FromRoute][Description("Id рекламной компании")]int id,
+            CancellationToken ct)
         {
-            AdExpense? adExpense = await _leadSourceService.DeleteAdExpenseAsync(id);
+            AdExpense? adExpense = await _leadSourceService.DeleteAdExpenseAsync(id, ct);
 
             if (adExpense != null)
             {

@@ -9,17 +9,30 @@ namespace ServiceCRM.Services.ServiceRequestServices
         public Task<List<ServiceRequest>> GetServiceRequestsAsync(
             RequestStatus? status,
             int? masterId,
-            DateTime? dateTime);
+            DateTime? dateTime,
+            CancellationToken ct = default);
 
-        public Task<ServiceRequest?> GetServiceRequestByIdAsync(int id);
+        public Task<ServiceRequest?> GetServiceRequestByIdAsync(
+            int id,
+            CancellationToken ct = default);
 
-        public Task<ServiceRequest> CreateServiceRequestAsync(CreateServiceRequestDto dto);
+        public Task<ServiceRequest> CreateServiceRequestAsync(
+            CreateServiceRequestDto dto,
+            CancellationToken ct = default);
 
-        public Task<ServiceRequest?> UpdateServiceRequestAsync(int id, UpdateServiceRequestDto dto);
+        public Task<ServiceRequest?> UpdateServiceRequestAsync(
+            int id, 
+            UpdateServiceRequestDto dto,
+            CancellationToken ct = default);
 
-        public Task<ServiceRequest?> CompleteServiceRequestAsync(int id, CompleteServiceRequestDto dto);
+        public Task<ServiceRequest?> CompleteServiceRequestAsync(
+            int id, 
+            CompleteServiceRequestDto dto,
+            CancellationToken ct = default);
 
-        public Task<ServiceRequest?> DeleteServiceRequestAsync(int id);
+        public Task<ServiceRequest?> DeleteServiceRequestAsync(
+            int id,
+            CancellationToken ct = default);
 
 
     }

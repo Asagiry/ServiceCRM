@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class;
 using ServiceCRM.DTOs.MasterDTOs;
 using System.ComponentModel;
@@ -13,9 +13,12 @@ namespace ServiceCRM.Services.MasterServices
             _context = context;
         }
 
-        public async Task<List<Master>> GetMastersAsync(bool? isActive, string? search)
+        public async Task<List<Master>> GetMastersAsync(
+            bool? isActive,
+            string? search,
+            CancellationToken ct = default)
         {
-            var query = _context.Masters.AsQueryable();
+            var query = _context.Masters.AsNoTracking();
 
             if (isActive != null)
             {
@@ -30,16 +33,21 @@ namespace ServiceCRM.Services.MasterServices
                 x.City.Contains(search));
             }
 
-            return await query.ToListAsync();
+            return await query.ToListAsync(ct);
         }
-        public async Task<Master?> GetMasterByIdAsync(int id)
+        public async Task<Master?> GetMasterByIdAsync(
+            int id,
+            CancellationToken ct = default)
         {
             return await _context.Masters
+                .AsNoTracking()
                 .Include(x => x.Requests)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, ct);
         }
 
-        public async Task<Master> CreateMasterAsync(CreateMasterDto dto)
+        public async Task<Master> CreateMasterAsync(
+            CreateMasterDto dto,
+            CancellationToken ct)
         {
             Master master = new Master()
             {
@@ -54,15 +62,18 @@ namespace ServiceCRM.Services.MasterServices
 
             _context.Masters.Add(master);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return master;
 
         }
 
-        public async Task<Master?> UpdateMasterAsync(int id, UpdateMasterDto dto)
+        public async Task<Master?> UpdateMasterAsync(
+            int id, 
+            UpdateMasterDto dto,
+            CancellationToken ct = default)
         {
-            Master? master = await _context.Masters.FindAsync(id);
+            Master? master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (master == null)
             {
@@ -77,14 +88,16 @@ namespace ServiceCRM.Services.MasterServices
             master.CommissionPercent = dto.CommissionPercent;
             master.IsActive = dto.IsActive;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return master;
         }
 
-        public async Task<Master?> DeleteMasterAsync(int id)
+        public async Task<Master?> DeleteMasterAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            Master? master = await _context.Masters.FindAsync(id);
+            Master? master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (master == null)
             {
@@ -93,7 +106,7 @@ namespace ServiceCRM.Services.MasterServices
 
             _context.Masters.Remove(master);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return master;
         }

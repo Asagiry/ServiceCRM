@@ -18,17 +18,20 @@ namespace ServiceCRM.Controllers.Base
         [HttpGet]
         [EndpointSummary("Получить список всех клиентов")]
         public async Task<ActionResult<List<Client>>> GetClients(
-            [FromQuery][Description("найти клиентов у которых есть {search} в FullName,PhoneNumber,City")] string? search)
+            [FromQuery][Description("найти клиентов у которых есть {search} в FullName,PhoneNumber,City")] string? search,
+            CancellationToken ct)
         {
-            return Ok(await _clientService.GetClientsAsync(search));
+            return Ok(await _clientService.GetClientsAsync(search, ct));
         }
 
         [HttpGet("{id}")]
         [EndpointSummary("Получить клиента по Id с его заявками")]
         public async Task<ActionResult<Client>> GetClientById(
-            [FromRoute][Description("Id искомого клиента")] int id)
+            [FromRoute][Description("Id искомого клиента")] int id,
+            CancellationToken ct)
         {
-            var client = await _clientService.GetClientByIdAsync(id);
+            var client = await _clientService.GetClientByIdAsync(id, ct);
+
             if (client != null)
                 return Ok(client);
             else
@@ -38,9 +41,11 @@ namespace ServiceCRM.Controllers.Base
         [HttpPost]
         [EndpointSummary("Создать нового клиента")]
         public async Task<ActionResult<Client>> CreateClient(
-            [FromBody][Description("Dto клиента")] CreateClientDto dto)
+            [FromBody][Description("Dto клиента")] CreateClientDto dto,
+            CancellationToken ct)
         {
-            Client client = await _clientService.CreateClientAsync(dto);
+            Client client = await _clientService.CreateClientAsync(dto, ct);
+
             return CreatedAtAction(nameof(GetClientById), new { id = client.Id }, client);
         }
 
@@ -48,9 +53,10 @@ namespace ServiceCRM.Controllers.Base
         [EndpointSummary("Обновить клиента по Id")]
         public async Task<ActionResult<Client>> UpdateCliend(
            [FromRoute][Description("Id клиента")] int id,
-           [FromBody][Description("Dto клиента")] UpdateClientDto dto)
+           [FromBody][Description("Dto клиента")] UpdateClientDto dto,
+           CancellationToken ct)
         {
-            Client? client = await _clientService.UpdateClientAsync(id, dto);
+            Client? client = await _clientService.UpdateClientAsync(id, dto, ct);
             if (client != null)
             {
                 return Ok(client);
@@ -64,9 +70,10 @@ namespace ServiceCRM.Controllers.Base
         [HttpDelete("{id}")]
         [EndpointSummary("Удалить клиента по Id")]
         public async Task<ActionResult> DeleteClient(
-            [FromRoute][Description("Id удаляемого клиента")] int id)
+            [FromRoute][Description("Id удаляемого клиента")] int id,
+            CancellationToken ct)
         {
-            Client? client = await _clientService.DeleteClientAsync(id);
+            Client? client = await _clientService.DeleteClientAsync(id, ct);
 
             if (client != null)
                 return Ok(client);

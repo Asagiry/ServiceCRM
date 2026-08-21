@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using ServiceCRM.Class;
 using ServiceCRM.DTOs.ClientDTOs;
@@ -16,9 +16,11 @@ namespace ServiceCRM.Class
             _context = context;
         }
 
-        public async Task<List<Client>> GetClientsAsync(string? search)
+        public async Task<List<Client>> GetClientsAsync(
+            string? search,
+            CancellationToken ct = default)
         {
-            var query = _context.Clients.AsQueryable();
+            var query = _context.Clients.AsNoTracking();
 
             if (search != null)
             {
@@ -28,17 +30,22 @@ namespace ServiceCRM.Class
                 x.City.Contains(search));
             }
 
-            return await query.ToListAsync();
+            return await query.ToListAsync(ct);
         }
 
-        public async Task<Client?> GetClientByIdAsync(int id)
+        public async Task<Client?> GetClientByIdAsync(
+            int id,
+            CancellationToken ct = default)
         {
             return await _context.Clients
+                .AsNoTracking()
                 .Include(c => c.Requests)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, ct);
         }
 
-        public async Task<Client> CreateClientAsync(CreateClientDto dto)
+        public async Task<Client> CreateClientAsync(
+            CreateClientDto dto,
+            CancellationToken ct = default)
         {
             Client client = new Client()
             {
@@ -48,14 +55,17 @@ namespace ServiceCRM.Class
             };
 
             _context.Clients.Add(client);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return client;
         }
 
-        public async Task<Client?> UpdateClientAsync(int id,UpdateClientDto dto)
+        public async Task<Client?> UpdateClientAsync(
+            int id,
+            UpdateClientDto dto,
+            CancellationToken ct = default)
         {
-            Client? toUpdate = await _context.Clients.FindAsync(id);
+            Client? toUpdate = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (toUpdate == null)
             {
@@ -66,20 +76,22 @@ namespace ServiceCRM.Class
             toUpdate.PhoneNumber = dto.PhoneNumber;
             toUpdate.City = dto.City;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return toUpdate;  
         }
 
-        public async Task<Client?> DeleteClientAsync(int id)
+        public async Task<Client?> DeleteClientAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            Client? toDelete = await _context.Clients.FindAsync(id);
+            Client? toDelete = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct);
 
             if (toDelete == null)
                 return null;
 
             _context.Clients.Remove(toDelete);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return toDelete;
         }
