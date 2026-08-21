@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using ServiceCRM.Exceptions;
+using System.Net;
 
 namespace ServiceCRM.Middlewares
 {
@@ -20,6 +21,21 @@ namespace ServiceCRM.Middlewares
             try
             {
                 await _next(context);
+            }
+            catch (AppException ex)
+            {
+                _logger.LogWarning(ex, $"Произошла ошибка, {ex.Message}");
+                context.Response.StatusCode = ex.StatusCode;
+                context.Response.ContentType = "application/json";
+
+                var response = new
+                {
+                    statusCode = ex.StatusCode,
+                    message = ex.Message
+                };
+
+                await context.Response.WriteAsJsonAsync(response);
+
             }
             catch(Exception ex)
             {

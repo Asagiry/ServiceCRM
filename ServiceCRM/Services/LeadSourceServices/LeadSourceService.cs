@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class.Lead;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.LeadSourceDTOs;
+using ServiceCRM.Exceptions;
 
 namespace ServiceCRM.Services.LeadSourceService
 {
@@ -22,14 +24,15 @@ namespace ServiceCRM.Services.LeadSourceService
                 .ToListAsync(ct);
         }
 
-        public async Task<LeadSource?> GetLeadSourceByIdAsync(
+        public async Task<LeadSource> GetLeadSourceByIdAsync(
             int id,
             CancellationToken ct = default)
         {
             return await _context.LeadSources
                 .AsNoTracking()
                 .Include(x => x.AdExpenses)
-                .FirstOrDefaultAsync(x => x.Id == id, ct);
+                .FirstOrDefaultAsync(x => x.Id == id, ct) 
+                ?? throw new NotFoundException(ErrorMessages.LeadSourceNotFound(id));
         }
 
         public async Task<LeadSource> CreateLeadSourceAsync(
@@ -47,18 +50,15 @@ namespace ServiceCRM.Services.LeadSourceService
 
       
 
-        public async Task<LeadSource?> UpdateLeadSourceAsync(
+        public async Task<LeadSource> UpdateLeadSourceAsync(
             int id, 
             UpdateLeadSourceDto dto,
             CancellationToken ct = default)
         {
-            LeadSource? leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct);
+            LeadSource leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.LeadSourceNotFound(id));
 
-            if (leadSource == null)
-            {
-                return null;
-            }
-
+          
             leadSource.UpdateFromDto(dto);
 
             await _context.SaveChangesAsync(ct);
@@ -66,16 +66,12 @@ namespace ServiceCRM.Services.LeadSourceService
             return leadSource;
         }
 
-        public async Task<LeadSource?> DeleteLeadSourceAsync(
+        public async Task<LeadSource> DeleteLeadSourceAsync(
             int id,
             CancellationToken ct = default)
         {
-            LeadSource? leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (leadSource == null)
-            {
-                return null;
-            }
+            LeadSource leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.LeadSourceNotFound(id));
 
             _context.LeadSources.Remove(leadSource);
 
@@ -84,17 +80,13 @@ namespace ServiceCRM.Services.LeadSourceService
             return leadSource;
         }
 
-        public async Task<AdExpense?> CreateAdExpenseAsync(
+        public async Task<AdExpense> CreateAdExpenseAsync(
             int leadSourceId, 
             CreateAdExpenseDto dto,
             CancellationToken ct = default)
         {
-            LeadSource? leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == leadSourceId, ct);
-
-            if (leadSource == null)
-            {
-                return null;
-            }
+            LeadSource leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == leadSourceId, ct)
+                ?? throw new NotFoundException(ErrorMessages.LeadSourceNotFound(leadSourceId));
 
             AdExpense adExpense = new AdExpense(leadSourceId, dto);
 
@@ -106,16 +98,12 @@ namespace ServiceCRM.Services.LeadSourceService
 
         }
 
-        public async Task<AdExpense?> DeleteAdExpenseAsync(
+        public async Task<AdExpense> DeleteAdExpenseAsync(
             int id,
             CancellationToken ct = default)
         {
-            AdExpense? adExpense = await _context.AdExpenses.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (adExpense == null)
-            {
-                return null;
-            }
+            AdExpense adExpense = await _context.AdExpenses.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.AdExpenseNotFound(id));
 
             _context.AdExpenses.Remove(adExpense);
 

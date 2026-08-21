@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using ServiceCRM.Class;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.ClientDTOs;
-using System.ComponentModel;
-using System.Xml;
+using ServiceCRM.Exceptions;
 
 namespace ServiceCRM.Class
 {
@@ -33,14 +31,15 @@ namespace ServiceCRM.Class
             return await query.ToListAsync(ct);
         }
 
-        public async Task<Client?> GetClientByIdAsync(
+        public async Task<Client> GetClientByIdAsync(
             int id,
             CancellationToken ct = default)
         {
             return await _context.Clients
                 .AsNoTracking()
                 .Include(c => c.Requests)
-                .FirstOrDefaultAsync(c => c.Id == id, ct);
+                .FirstOrDefaultAsync(c => c.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ClientNotFound(id));
         }
 
         public async Task<Client> CreateClientAsync(
@@ -60,17 +59,14 @@ namespace ServiceCRM.Class
             return client;
         }
 
-        public async Task<Client?> UpdateClientAsync(
+        public async Task<Client> UpdateClientAsync(
             int id,
             UpdateClientDto dto,
             CancellationToken ct = default)
         {
-            Client? toUpdate = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct);
+            Client toUpdate = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ClientNotFound(id));
 
-            if (toUpdate == null)
-            {
-                return null;
-            }
 
             toUpdate.FullName = dto.FullName;
             toUpdate.PhoneNumber = dto.PhoneNumber;
@@ -81,14 +77,12 @@ namespace ServiceCRM.Class
             return toUpdate;  
         }
 
-        public async Task<Client?> DeleteClientAsync(
+        public async Task<Client> DeleteClientAsync(
             int id,
             CancellationToken ct = default)
         {
-            Client? toDelete = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (toDelete == null)
-                return null;
+            Client toDelete = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ClientNotFound(id));
 
             _context.Clients.Remove(toDelete);
             await _context.SaveChangesAsync(ct);

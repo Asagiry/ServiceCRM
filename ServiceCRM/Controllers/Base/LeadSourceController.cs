@@ -31,16 +31,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id искомого источника")]int id,
             CancellationToken ct)
         {
-            LeadSource? leadSource = await _leadSourceService.GetLeadSourceByIdAsync(id, ct);
-
-            if (leadSource != null)
-            {
-                return Ok(leadSource);
-            }
-            else
-            {
-                return NotFound();
-            }
+             return Ok(await _leadSourceService.GetLeadSourceByIdAsync(id, ct));
         }
 
         [HttpPost]
@@ -61,16 +52,7 @@ namespace ServiceCRM.Controllers.Base
             [FromBody][Description("Dto обновляемого источника")]UpdateLeadSourceDto dto,
             CancellationToken ct)
         {
-            LeadSource? leadsource = await _leadSourceService.UpdateLeadSourceAsync(id, dto, ct);
-
-            if (leadsource != null)
-            {
-                return Ok(leadsource);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _leadSourceService.UpdateLeadSourceAsync(id, dto, ct));
         }
 
         [HttpDelete("{id}")]
@@ -79,16 +61,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемого источника")]int id,
             CancellationToken ct)
         {
-            LeadSource? leadSource = await _leadSourceService.DeleteLeadSourceAsync(id, ct);
-
-            if (leadSource != null)
-            {
-                return Ok(leadSource);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _leadSourceService.DeleteLeadSourceAsync(id, ct));
         }
 
         [HttpPost("{id}/expenses")]
@@ -98,16 +71,7 @@ namespace ServiceCRM.Controllers.Base
             [FromBody][Description("Dto новой рекламной компании")]CreateAdExpenseDto dto,
             CancellationToken ct)
         {
-            AdExpense? adExpense = await _leadSourceService.CreateAdExpenseAsync(id, dto, ct);
-
-            if (adExpense != null)
-            {
-                return Ok(adExpense);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _leadSourceService.CreateAdExpenseAsync(id, dto, ct));
         }
 
         [HttpDelete("expenses/{id}")]
@@ -116,16 +80,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id рекламной компании")]int id,
             CancellationToken ct)
         {
-            AdExpense? adExpense = await _leadSourceService.DeleteAdExpenseAsync(id, ct);
-
-            if (adExpense != null)
-            {
-                return Ok(adExpense);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _leadSourceService.DeleteAdExpenseAsync(id, ct));
         }
 
     }

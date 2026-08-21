@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.MasterDTOs;
-using System.ComponentModel;
+using ServiceCRM.Exceptions;
 
 namespace ServiceCRM.Services.MasterServices
 {
@@ -35,14 +36,15 @@ namespace ServiceCRM.Services.MasterServices
 
             return await query.ToListAsync(ct);
         }
-        public async Task<Master?> GetMasterByIdAsync(
+        public async Task<Master> GetMasterByIdAsync(
             int id,
             CancellationToken ct = default)
         {
             return await _context.Masters
                 .AsNoTracking()
                 .Include(x => x.Requests)
-                .FirstOrDefaultAsync(c => c.Id == id, ct);
+                .FirstOrDefaultAsync(c => c.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.MasterNotFound(id));
         }
 
         public async Task<Master> CreateMasterAsync(
@@ -68,17 +70,13 @@ namespace ServiceCRM.Services.MasterServices
 
         }
 
-        public async Task<Master?> UpdateMasterAsync(
+        public async Task<Master> UpdateMasterAsync(
             int id, 
             UpdateMasterDto dto,
             CancellationToken ct = default)
         {
-            Master? master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (master == null)
-            {
-                return null;
-            }
+            Master master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.MasterNotFound(id));
 
             master.Fullname = dto.Fullname;
             master.PhoneNumber = dto.PhoneNumber;
@@ -93,16 +91,12 @@ namespace ServiceCRM.Services.MasterServices
             return master;
         }
 
-        public async Task<Master?> DeleteMasterAsync(
+        public async Task<Master> DeleteMasterAsync(
             int id,
             CancellationToken ct = default)
         {
-            Master? master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (master == null)
-            {
-                return null;
-            }
+            Master master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.MasterNotFound(id));
 
             _context.Masters.Remove(master);
 

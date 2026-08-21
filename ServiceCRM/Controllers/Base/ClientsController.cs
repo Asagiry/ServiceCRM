@@ -30,12 +30,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id искомого клиента")] int id,
             CancellationToken ct)
         {
-            var client = await _clientService.GetClientByIdAsync(id, ct);
-
-            if (client != null)
-                return Ok(client);
-            else
-                return NotFound();
+            return Ok(await _clientService.GetClientByIdAsync(id, ct));
         }
 
         [HttpPost]
@@ -55,16 +50,8 @@ namespace ServiceCRM.Controllers.Base
            [FromRoute][Description("Id клиента")] int id,
            [FromBody][Description("Dto клиента")] UpdateClientDto dto,
            CancellationToken ct)
-        {
-            Client? client = await _clientService.UpdateClientAsync(id, dto, ct);
-            if (client != null)
-            {
-                return Ok(client);
-            }
-            else
-            {
-                return NotFound();
-            }
+        {      
+            return Ok(await _clientService.UpdateClientAsync(id, dto, ct));
         }
 
         [HttpDelete("{id}")]
@@ -73,12 +60,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемого клиента")] int id,
             CancellationToken ct)
         {
-            Client? client = await _clientService.DeleteClientAsync(id, ct);
-
-            if (client != null)
-                return Ok(client);
-            else
-                return NotFound();
+            return Ok(await _clientService.DeleteClientAsync(id, ct));
         }
 
     }

@@ -12,7 +12,7 @@ namespace ServiceCRM.Services.ServiceRequestServices
             DateTime? dateTime,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest?> GetServiceRequestByIdAsync(
+        public Task<ServiceRequest> GetServiceRequestByIdAsync(
             int id,
             CancellationToken ct = default);
 
@@ -20,17 +20,17 @@ namespace ServiceCRM.Services.ServiceRequestServices
             CreateServiceRequestDto dto,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest?> UpdateServiceRequestAsync(
+        public Task<ServiceRequest> UpdateServiceRequestAsync(
             int id, 
             UpdateServiceRequestDto dto,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest?> CompleteServiceRequestAsync(
+        public Task<ServiceRequest> CompleteServiceRequestAsync(
             int id, 
             CompleteServiceRequestDto dto,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest?> DeleteServiceRequestAsync(
+        public Task<ServiceRequest> DeleteServiceRequestAsync(
             int id,
             CancellationToken ct = default);
 

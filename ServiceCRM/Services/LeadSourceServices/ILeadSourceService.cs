@@ -9,7 +9,7 @@ namespace ServiceCRM.Services.LeadSourceService
         public Task<List<LeadSource>> GetLeadSourcesAsync(
             CancellationToken ct = default);
 
-        public Task<LeadSource?> GetLeadSourceByIdAsync(
+        public Task<LeadSource> GetLeadSourceByIdAsync(
             int id,
             CancellationToken ct = default);
 
@@ -17,22 +17,22 @@ namespace ServiceCRM.Services.LeadSourceService
             CreateLeadSourceDto dto,
             CancellationToken ct = default);
 
-        public Task<LeadSource?> UpdateLeadSourceAsync(
+        public Task<LeadSource> UpdateLeadSourceAsync(
             int id, 
             UpdateLeadSourceDto dto,
             CancellationToken ct = default);
 
-        public Task<LeadSource?> DeleteLeadSourceAsync(
+        public Task<LeadSource> DeleteLeadSourceAsync(
             int id,
             CancellationToken ct = default);
 
         // AdExpence CD
-        public Task<AdExpense?> CreateAdExpenseAsync(
+        public Task<AdExpense> CreateAdExpenseAsync(
             int leadSourceId,
             CreateAdExpenseDto dto,
             CancellationToken ct = default);
 
-        public Task<AdExpense?> DeleteAdExpenseAsync(
+        public Task<AdExpense> DeleteAdExpenseAsync(
             int id,
             CancellationToken ct = default);
     }

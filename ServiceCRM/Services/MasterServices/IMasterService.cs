@@ -10,7 +10,7 @@ namespace ServiceCRM.Services.MasterServices
             string? search,
             CancellationToken ct = default);
 
-        public Task<Master?> GetMasterByIdAsync(
+        public Task<Master> GetMasterByIdAsync(
             int id, 
             CancellationToken ct = default);
 
@@ -18,12 +18,12 @@ namespace ServiceCRM.Services.MasterServices
             CreateMasterDto dto,
             CancellationToken ct = default);
 
-        public Task<Master?> UpdateMasterAsync(
+        public Task<Master> UpdateMasterAsync(
             int id, 
             UpdateMasterDto dto,
             CancellationToken ct = default);
 
-        public Task<Master?> DeleteMasterAsync(
+        public Task<Master> DeleteMasterAsync(
             int id,
             CancellationToken ct = default);
 

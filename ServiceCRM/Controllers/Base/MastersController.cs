@@ -32,16 +32,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id искомого мастера")] int id,
             CancellationToken ct)
         {
-            Master? master = await _masterServise.GetMasterByIdAsync(id, ct);
-
-            if (master != null)
-            {
-                return Ok(master);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _masterServise.GetMasterByIdAsync(id, ct));
         }
 
         [HttpPost]
@@ -62,16 +53,7 @@ namespace ServiceCRM.Controllers.Base
             CancellationToken ct)
             
         {
-            Master? master = await _masterServise.UpdateMasterAsync(id, dto, ct);
-            
-            if(master != null)
-            {
-                return Ok(master);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _masterServise.UpdateMasterAsync(id, dto, ct));
         }
 
         [HttpDelete("{id}")]
@@ -80,16 +62,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемого мастера")] int id,
             CancellationToken ct)
         {
-            Master? master = await _masterServise.DeleteMasterAsync(id, ct);
-
-            if (master != null)
-            {
-                return Ok(master);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _masterServise.DeleteMasterAsync(id, ct));
         }
 
         

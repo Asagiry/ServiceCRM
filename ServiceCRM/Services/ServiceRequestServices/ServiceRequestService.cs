@@ -2,7 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Class;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
-using System.ComponentModel;
+using ServiceCRM.Exceptions;
+using ServiceCRM.Common;
 
 namespace ServiceCRM.Services.ServiceRequestServices
 {
@@ -47,7 +48,7 @@ namespace ServiceCRM.Services.ServiceRequestServices
                 .ToListAsync(ct);
         }
 
-        public async Task<ServiceRequest?> GetServiceRequestByIdAsync(
+        public async Task<ServiceRequest> GetServiceRequestByIdAsync(
             int id,
             CancellationToken ct = default)
         {
@@ -55,7 +56,8 @@ namespace ServiceCRM.Services.ServiceRequestServices
                 .AsNoTracking()
                 .Include(x => x.Master)
                 .Include(x => x.Client)
-                .FirstOrDefaultAsync(x => x.Id == id, ct);
+                .FirstOrDefaultAsync(x => x.Id == id, ct) 
+                ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
         }
         public async Task<ServiceRequest> CreateServiceRequestAsync(
             CreateServiceRequestDto dto,
@@ -70,17 +72,13 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             return serviceRequest;
          }
-        public async Task<ServiceRequest?> UpdateServiceRequestAsync(
+        public async Task<ServiceRequest> UpdateServiceRequestAsync(
             int id, 
             UpdateServiceRequestDto dto,
             CancellationToken ct = default)
         {
-            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (serviceRequest == null)
-            {
-                return null;
-            }
+            ServiceRequest serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
 
             serviceRequest.UpdateServiceRequest(dto);
 
@@ -89,17 +87,13 @@ namespace ServiceCRM.Services.ServiceRequestServices
             return serviceRequest;
         }
 
-        public async Task<ServiceRequest?> CompleteServiceRequestAsync(
+        public async Task<ServiceRequest> CompleteServiceRequestAsync(
             int id, 
             CompleteServiceRequestDto dto,
             CancellationToken ct = default)
         {
-            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (serviceRequest == null)
-            {
-                return null;
-            }
+            ServiceRequest serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
 
             serviceRequest.CompleteServiceRequest(dto);
 
@@ -110,16 +104,12 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
         
 
-        public async Task<ServiceRequest?> DeleteServiceRequestAsync(
+        public async Task<ServiceRequest> DeleteServiceRequestAsync(
             int id,
             CancellationToken ct = default)
         {
-            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct);
-
-            if (serviceRequest == null)
-            {
-                return null;
-            }
+            ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
 
             _context.ServiceRequests.Remove(serviceRequest);
 

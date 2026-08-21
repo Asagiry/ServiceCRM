@@ -36,16 +36,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id искомой заявки")] int id,
             CancellationToken ct)
         {
-            ServiceRequest? serviceRequest = await _serviceRequestService.GetServiceRequestByIdAsync(id, ct);
-
-            if (serviceRequest != null)
-            {
-                return Ok(serviceRequest);
-            }
-            else
-            {
-                return NotFound();
-            }
+            return Ok(await _serviceRequestService.GetServiceRequestByIdAsync(id, ct));
         }
 
         [HttpPost]
@@ -84,16 +75,7 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемой заявки")]int id,
             CancellationToken ct)
         {
-            ServiceRequest? serviceRequest = await _serviceRequestService.DeleteServiceRequestAsync(id, ct);
-
-            if (serviceRequest != null)
-            {
-                return Ok(serviceRequest);
-            }
-            else
-            {
-                return NotFound(serviceRequest);
-            }
+            return Ok(await _serviceRequestService.DeleteServiceRequestAsync(id, ct));
         }
 
 
