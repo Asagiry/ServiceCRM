@@ -5,12 +5,12 @@ namespace ServiceCRM.Services.PaymentServices
 {
     public interface IPaymentService
     {
-        public Task<Payment> CreatePaymentByServiceRequestIdAsync(
+        public Task<PaymentResponseDto> CreatePaymentByServiceRequestIdAsync(
             int requestId,
             CreatePaymentDto dto,
             CancellationToken ct);
 
-        public Task<Payment> GetPaymentByServiceRequestIdAsync(
+        public Task<PaymentResponseDto> GetPaymentByServiceRequestIdAsync(
             int requestId,
             CancellationToken ct);
     }

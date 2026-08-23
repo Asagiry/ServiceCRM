@@ -4,6 +4,9 @@ using ServiceCRM.DTOs.ServiceRequestDTOs;
 using ServiceCRM.Exceptions;
 using ServiceCRM.Common;
 using ServiceCRM.Models.Request;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using StackExchange.Redis;
 
 namespace ServiceCRM.Services.ServiceRequestServices
 {
@@ -17,10 +20,12 @@ namespace ServiceCRM.Services.ServiceRequestServices
         }
 
 
-        public async Task<List<ServiceRequest>> GetServiceRequestsAsync(
+        public async Task<PagedResult<ServiceRequestResponseDto>> GetServiceRequestsAsync(
             RequestStatus? status,
             int? masterId,
             DateTime? dateTime,
+            int page,
+            int pageSize,
             CancellationToken ct = default)
         {
             var query = _context.ServiceRequests.AsNoTracking();
@@ -42,37 +47,45 @@ namespace ServiceCRM.Services.ServiceRequestServices
                 query = query.Where(x => x.CreatedAt >= startOfDay && x.CreatedAt < startOfNextDay);
             }
 
-            return await query
+
+            var result = await query
                 .Include(x => x.Master)
                 .Include(x => x.Client)
-                .ToListAsync(ct);
+                .Include(x => x.LeadSource)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToPagedListAsync(page, pageSize, ct);
+
+            return result.Map(x => x.ToDto());
+
         }
 
-        public async Task<ServiceRequest> GetServiceRequestByIdAsync(
+        public async Task<ServiceRequestResponseDto> GetServiceRequestByIdAsync(
             int id,
             CancellationToken ct = default)
         {
-            return await _context.ServiceRequests
+            var result = await _context.ServiceRequests
                 .AsNoTracking()
                 .Include(x => x.Master)
                 .Include(x => x.Client)
-                .FirstOrDefaultAsync(x => x.Id == id, ct) 
+                .Include(x => x.LeadSource)
+                .FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
+
+            return result.ToDto();
         }
-        public async Task<ServiceRequest> CreateServiceRequestAsync(
+        public async Task<ServiceRequestResponseDto> CreateServiceRequestAsync(
             CreateServiceRequestDto dto,
             CancellationToken ct = default)
         {
             ServiceRequest serviceRequest = new ServiceRequest(dto);
          
-
             _context.ServiceRequests.Add(serviceRequest);
 
             await _context.SaveChangesAsync(ct);
 
-            return serviceRequest;
+            return serviceRequest.ToDto();
          }
-        public async Task<ServiceRequest> UpdateServiceRequestAsync(
+        public async Task<ServiceRequestResponseDto> UpdateServiceRequestAsync(
             int id, 
             UpdateServiceRequestDto dto,
             CancellationToken ct = default)
@@ -84,10 +97,10 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             await _context.SaveChangesAsync(ct);
 
-            return serviceRequest;
+            return serviceRequest.ToDto();
         }
 
-        public async Task<ServiceRequest> CompleteServiceRequestAsync(
+        public async Task<ServiceRequestResponseDto> CompleteServiceRequestAsync(
             int id, 
             CompleteServiceRequestDto dto,
             CancellationToken ct = default)
@@ -99,12 +112,12 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             await _context.SaveChangesAsync(ct);
 
-            return serviceRequest;
+            return serviceRequest.ToDto();
         }
 
         
 
-        public async Task<ServiceRequest> DeleteServiceRequestAsync(
+        public async Task DeleteServiceRequestAsync(
             int id,
             CancellationToken ct = default)
         {
@@ -114,8 +127,6 @@ namespace ServiceCRM.Services.ServiceRequestServices
             _context.ServiceRequests.Remove(serviceRequest);
 
             await _context.SaveChangesAsync(ct);
-
-            return serviceRequest;
         }
 
     }

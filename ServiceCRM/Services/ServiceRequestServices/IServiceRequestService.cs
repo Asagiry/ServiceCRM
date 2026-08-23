@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Update.Internal;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
 using ServiceCRM.Models.Request;
 
@@ -6,31 +7,33 @@ namespace ServiceCRM.Services.ServiceRequestServices
 {
     public interface IServiceRequestService
     {
-        public Task<List<ServiceRequest>> GetServiceRequestsAsync(
+        public Task<PagedResult<ServiceRequestResponseDto>> GetServiceRequestsAsync(
             RequestStatus? status,
             int? masterId,
             DateTime? dateTime,
+            int page,
+            int pageSize,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest> GetServiceRequestByIdAsync(
+        public Task<ServiceRequestResponseDto> GetServiceRequestByIdAsync(
             int id,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest> CreateServiceRequestAsync(
+        public Task<ServiceRequestResponseDto> CreateServiceRequestAsync(
             CreateServiceRequestDto dto,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest> UpdateServiceRequestAsync(
+        public Task<ServiceRequestResponseDto> UpdateServiceRequestAsync(
             int id, 
             UpdateServiceRequestDto dto,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest> CompleteServiceRequestAsync(
+        public Task<ServiceRequestResponseDto> CompleteServiceRequestAsync(
             int id, 
             CompleteServiceRequestDto dto,
             CancellationToken ct = default);
 
-        public Task<ServiceRequest> DeleteServiceRequestAsync(
+        public Task DeleteServiceRequestAsync(
             int id,
             CancellationToken ct = default);
 

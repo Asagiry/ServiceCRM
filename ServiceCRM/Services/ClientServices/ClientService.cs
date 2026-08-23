@@ -16,13 +16,16 @@ namespace ServiceCRM.Services.ClientServices
             _context = context;
         }
 
-        public async Task<List<Client>> GetClientsAsync(
+        public async Task<PagedResult<ClientResponseDto>> GetClientsAsync(
             string? search,
+            int page,
+            int pageSize,
             CancellationToken ct = default)
         {
-            var query = _context.Clients.AsNoTracking();
+            var query = _context.Clients
+                .AsNoTracking();            
 
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(x =>
                 x.FullName.Contains(search) ||
@@ -30,21 +33,31 @@ namespace ServiceCRM.Services.ClientServices
                 x.City.Contains(search));
             }
 
-            return await query.ToListAsync(ct);
+            var paged = await query.OrderByDescending(x => x.CreatedAt)
+                            .ToPagedListAsync(page, pageSize, ct);
+
+            return paged.Map(x => x.ToDto());
+
+
         }
 
-        public async Task<Client> GetClientByIdAsync(
+        public async Task<ClientDetailedResponseDto> GetClientByIdAsync(
             int id,
             CancellationToken ct = default)
         {
-            return await _context.Clients
+            var clientDetailed = await _context.Clients
                 .AsNoTracking()
                 .Include(c => c.Requests)
+                    .ThenInclude(r => r.Master)       
+                .Include(c => c.Requests)
+                    .ThenInclude(r => r.LeadSource)   
                 .FirstOrDefaultAsync(c => c.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.ClientNotFound(id));
+
+            return clientDetailed.ToDetailedDto();
         }
 
-        public async Task<Client> CreateClientAsync(
+        public async Task<ClientResponseDto> CreateClientAsync(
             CreateClientDto dto,
             CancellationToken ct = default)
         {
@@ -58,10 +71,10 @@ namespace ServiceCRM.Services.ClientServices
             _context.Clients.Add(client);
             await _context.SaveChangesAsync(ct);
 
-            return client;
+            return client.ToDto();
         }
 
-        public async Task<Client> UpdateClientAsync(
+        public async Task<ClientResponseDto> UpdateClientAsync(
             int id,
             UpdateClientDto dto,
             CancellationToken ct = default)
@@ -76,10 +89,10 @@ namespace ServiceCRM.Services.ClientServices
 
             await _context.SaveChangesAsync(ct);
 
-            return toUpdate;  
+            return toUpdate.ToDto();  
         }
 
-        public async Task<Client> DeleteClientAsync(
+        public async Task DeleteClientAsync(
             int id,
             CancellationToken ct = default)
         {
@@ -88,8 +101,6 @@ namespace ServiceCRM.Services.ClientServices
 
             _context.Clients.Remove(toDelete);
             await _context.SaveChangesAsync(ct);
-
-            return toDelete;
         }
     }
 }

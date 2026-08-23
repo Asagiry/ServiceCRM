@@ -1,11 +1,9 @@
-﻿using ServiceCRM.DTOs.MasterDTOs;
-using ServiceCRM.Models.Request;
+﻿using ServiceCRM.DTOs.ServiceRequestDTOs;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 
-namespace ServiceCRM.Models
+namespace ServiceCRM.DTOs.MasterDTOs
 {
-    public class Master
+    public class MasterDetailedResponseDto
     {
         [Description("Id мастера")]
         public int Id { get; set; }
@@ -20,35 +18,10 @@ namespace ServiceCRM.Models
         [Description("Специализация мастера")]
         public required List<string> Specialization { get; set; }
         [Description("Список всех заявок")]
-        public List<ServiceRequest> Requests { get; set; } = new List<ServiceRequest>();
+        public List<ServiceRequestResponseDto> Requests { get; set; } = new List<ServiceRequestResponseDto>();
         [Description("Комиссия мастеру")]
         public decimal CommissionPercent { get; set; }
         [Description("Активен ли мастер(мб отпуск,больничный, отдыхает")]
         public bool IsActive { get; set; }
-
-        public Master() { }
-
-        [SetsRequiredMembers]
-        public Master(CreateMasterDto dto)
-        {
-            Fullname = dto.Fullname;
-            PhoneNumber = dto.PhoneNumber;
-            City = dto.City;
-            Telegram = dto.Telegram;
-            Specialization = dto.Specialization;
-            CommissionPercent = dto.CommissionPercent;
-            IsActive = dto.IsActive;
-        }
-
-        public void UpdateFromDto(UpdateMasterDto dto)
-        {
-            Fullname = dto.Fullname;
-            PhoneNumber = dto.PhoneNumber;
-            City = dto.City;
-            Telegram = dto.Telegram;
-            Specialization = dto.Specialization;
-            CommissionPercent = dto.CommissionPercent;
-            IsActive = dto.IsActive;
-        }
     }
 }

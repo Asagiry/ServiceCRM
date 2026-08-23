@@ -1,38 +1,41 @@
 ﻿using ServiceCRM.Models.Lead;
 using ServiceCRM.DTOs.LeadSourceDTOs;
+using ServiceCRM.Common;
 
 namespace ServiceCRM.Services.LeadSourceService
 {
     public interface ILeadSourceService
     {
         // LeadSource CRUD
-        public Task<List<LeadSource>> GetLeadSourcesAsync(
+        public Task<PagedResult<LeadSourceResponseDto>> GetLeadSourcesAsync(
+            int page,
+            int pageSize,
             CancellationToken ct = default);
 
-        public Task<LeadSource> GetLeadSourceByIdAsync(
+        public Task<LeadSourceResponseDto> GetLeadSourceByIdAsync(
             int id,
             CancellationToken ct = default);
 
-        public Task<LeadSource> CreateLeadSourceAsync(
+        public Task<LeadSourceResponseDto> CreateLeadSourceAsync(
             CreateLeadSourceDto dto,
             CancellationToken ct = default);
 
-        public Task<LeadSource> UpdateLeadSourceAsync(
+        public Task<LeadSourceResponseDto> UpdateLeadSourceAsync(
             int id, 
             UpdateLeadSourceDto dto,
             CancellationToken ct = default);
 
-        public Task<LeadSource> DeleteLeadSourceAsync(
+        public Task DeleteLeadSourceAsync(
             int id,
             CancellationToken ct = default);
 
         // AdExpence CD
-        public Task<AdExpense> CreateAdExpenseAsync(
+        public Task<AdExpenseResponseDto> CreateAdExpenseAsync(
             int leadSourceId,
             CreateAdExpenseDto dto,
             CancellationToken ct = default);
 
-        public Task<AdExpense> DeleteAdExpenseAsync(
+        public Task DeleteAdExpenseAsync(
             int id,
             CancellationToken ct = default);
     }

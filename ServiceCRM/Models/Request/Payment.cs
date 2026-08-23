@@ -27,8 +27,9 @@ namespace ServiceCRM.Models.Request
         {
             ServiceRequestId = serviceRequestId;
             Amount = dto.Amount;
-            PaymentDate = dto.PaymentDate;
+            PaymentDate = dto.PaymentDate ?? DateTime.UtcNow;
             PaymentMethod = dto.PaymentMethod;
+ 
         }
     }
 

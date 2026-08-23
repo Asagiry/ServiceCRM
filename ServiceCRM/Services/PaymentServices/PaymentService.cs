@@ -14,7 +14,7 @@ namespace ServiceCRM.Services.PaymentServices
             _context = context;
         }
 
-        public async Task<Payment> CreatePaymentByServiceRequestIdAsync(
+        public async Task<PaymentResponseDto> CreatePaymentByServiceRequestIdAsync(
             int requestId,
             CreatePaymentDto dto,
             CancellationToken ct)
@@ -37,20 +37,19 @@ namespace ServiceCRM.Services.PaymentServices
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync(ct);
 
-            return payment;
+            return payment.ToDto();
         }
 
-        public async Task<Payment> GetPaymentByServiceRequestIdAsync(
+        public async Task<PaymentResponseDto> GetPaymentByServiceRequestIdAsync(
             int requestId,
             CancellationToken ct)
         {
-            return await _context.Payments
+            var result = await _context.Payments
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.ServiceRequestId == requestId, ct)
                 ?? throw new NotFoundException(ErrorMessages.PaymentNotFound(requestId));
 
-
-            
+            return result.ToDto();
         }
     }
 }

@@ -3,6 +3,7 @@ using ServiceCRM.Models;
 using ServiceCRM.DTOs.MasterDTOs;
 using ServiceCRM.Services.MasterServices;
 using System.ComponentModel;
+using ServiceCRM.Common;
 
 namespace ServiceCRM.Controllers.Base
 {
@@ -18,17 +19,19 @@ namespace ServiceCRM.Controllers.Base
 
         [HttpGet]
         [EndpointSummary("Получить список всех мастеров")]
-        public async Task<ActionResult<List<Master>>> GetMasters(
+        public async Task<ActionResult<PagedResult<MasterResponseDto>>> GetMasters(
             [FromQuery][Description("Получить список только {isActive} мастеров")]bool? isActive,
             [FromQuery][Description("Получить список тех у кого в {Fullname},{PhoneNumber}{City}{Telegram} находится {string}")]string? search,
-            CancellationToken ct)
+            [FromQuery][Description]int page = 1,
+            [FromQuery][Description]int pageSize = 20,
+            CancellationToken ct = default)
         {
-            return Ok(await _masterServise.GetMastersAsync(isActive, search, ct));
+            return Ok(await _masterServise.GetMastersAsync(isActive, search, page, pageSize, ct));
         }
 
         [HttpGet("{id}")]
         [EndpointSummary("Получить мастера по Id с его заявками")]
-        public async Task<ActionResult<Master?>> GetMasterById(
+        public async Task<ActionResult<MasterDetailedResponseDto>> GetMasterById(
             [FromRoute][Description("Id искомого мастера")] int id,
             CancellationToken ct)
         {
@@ -37,17 +40,17 @@ namespace ServiceCRM.Controllers.Base
 
         [HttpPost]
         [EndpointSummary("Создать мастера из dto")]
-        public async Task<ActionResult<Master>> CreateMaster(
+        public async Task<ActionResult<MasterResponseDto>> CreateMaster(
             [FromBody][Description("Dto мастера")]CreateMasterDto dto,
             CancellationToken ct)
         {
-            Master master = await _masterServise.CreateMasterAsync(dto, ct);
+            MasterResponseDto master = await _masterServise.CreateMasterAsync(dto, ct);
             return CreatedAtAction(nameof(GetMasterById), new { id = master.Id }, master);
         }
 
         [HttpPut("{id}")]
         [EndpointSummary("Обновить мастера по id и dto")]
-        public async Task<ActionResult<Master?>> UpdateMaster(
+        public async Task<ActionResult<MasterResponseDto>> UpdateMaster(
             [FromRoute][Description("Id обновляемого мастера")]int id,
             [FromBody][Description("Dto мастера")]UpdateMasterDto dto,
             CancellationToken ct)
@@ -58,7 +61,7 @@ namespace ServiceCRM.Controllers.Base
 
         [HttpDelete("{id}")]
         [EndpointSummary("Удалить мастера по id")]
-        public async Task<ActionResult<Master?>> DeleteMaster(
+        public async Task<ActionResult> DeleteMaster(
             [FromRoute][Description("Id удаляемого мастера")] int id,
             CancellationToken ct)
         {

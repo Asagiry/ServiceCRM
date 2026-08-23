@@ -14,9 +14,11 @@ namespace ServiceCRM.Services.MasterServices
             _context = context;
         }
 
-        public async Task<List<Master>> GetMastersAsync(
+        public async Task<PagedResult<MasterResponseDto>> GetMastersAsync(
             bool? isActive,
             string? search,
+            int page,
+            int pageSize,
             CancellationToken ct = default)
         {
             var query = _context.Masters.AsNoTracking();
@@ -34,43 +36,44 @@ namespace ServiceCRM.Services.MasterServices
                 x.City.Contains(search));
             }
 
-            return await query.ToListAsync(ct);
+            var mastersPaged = await query
+                .OrderByDescending(x => x.IsActive)
+                .ThenBy(x => x.Id)
+                .ToPagedListAsync(page, pageSize, ct);
+
+            return mastersPaged.Map(x => x.ToDto());
         }
-        public async Task<Master> GetMasterByIdAsync(
+
+
+        public async Task<MasterDetailedResponseDto> GetMasterByIdAsync(
             int id,
             CancellationToken ct = default)
         {
-            return await _context.Masters
+            var master = await _context.Masters
                 .AsNoTracking()
                 .Include(x => x.Requests)
                 .FirstOrDefaultAsync(c => c.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.MasterNotFound(id));
+
+
+            return master.ToDetailedDto();
         }
 
-        public async Task<Master> CreateMasterAsync(
+        public async Task<MasterResponseDto> CreateMasterAsync(
             CreateMasterDto dto,
             CancellationToken ct)
         {
-            Master master = new Master()
-            {
-                Fullname = dto.Fullname,
-                PhoneNumber = dto.PhoneNumber,
-                City = dto.City,
-                Telegram = dto.Telegram,
-                Specialization = dto.Specialization,
-                CommissionPercent = dto.CommissionPercent,
-                IsActive = dto.IsActive
-            };
+            Master master = new Master(dto);
 
             _context.Masters.Add(master);
 
             await _context.SaveChangesAsync(ct);
 
-            return master;
+            return master.ToDto();
 
         }
 
-        public async Task<Master> UpdateMasterAsync(
+        public async Task<MasterResponseDto> UpdateMasterAsync(
             int id, 
             UpdateMasterDto dto,
             CancellationToken ct = default)
@@ -78,20 +81,14 @@ namespace ServiceCRM.Services.MasterServices
             Master master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.MasterNotFound(id));
 
-            master.Fullname = dto.Fullname;
-            master.PhoneNumber = dto.PhoneNumber;
-            master.City = dto.City;
-            master.Telegram = dto.Telegram;
-            master.Specialization = dto.Specialization;
-            master.CommissionPercent = dto.CommissionPercent;
-            master.IsActive = dto.IsActive;
-
+            master.UpdateFromDto(dto);
+           
             await _context.SaveChangesAsync(ct);
 
-            return master;
+            return master.ToDto();
         }
 
-        public async Task<Master> DeleteMasterAsync(
+        public async Task DeleteMasterAsync(
             int id,
             CancellationToken ct = default)
         {
@@ -101,8 +98,6 @@ namespace ServiceCRM.Services.MasterServices
             _context.Masters.Remove(master);
 
             await _context.SaveChangesAsync(ct);
-
-            return master;
         }
 
       

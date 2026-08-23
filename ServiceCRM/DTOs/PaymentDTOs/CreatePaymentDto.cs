@@ -8,7 +8,7 @@ namespace ServiceCRM.DTOs.PaymentDTOs
         [Description("Сумма платежа")]
         public decimal Amount { get; set; }
         [Description("Дата платежа")]
-        public DateTime PaymentDate { get; set; }
+        public DateTime? PaymentDate { get; set; } = DateTime.UtcNow;
         [Description("Метод платежа")]
         public required PaymentMethod PaymentMethod { get; set; }
     }

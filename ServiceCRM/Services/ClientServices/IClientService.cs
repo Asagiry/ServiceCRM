@@ -1,4 +1,5 @@
-﻿using ServiceCRM.DTOs.ClientDTOs;
+﻿using ServiceCRM.Common;
+using ServiceCRM.DTOs.ClientDTOs;
 
 using ServiceCRM.Models;
 
@@ -6,20 +7,22 @@ namespace ServiceCRM.Services.ClientServices
 {
     public interface IClientService
     {
-        public Task<List<Client>> GetClientsAsync(
-            string? search, 
+        public Task<PagedResult<ClientResponseDto>> GetClientsAsync(
+            string? search,
+            int page,
+            int pageSize,
             CancellationToken ct = default);
-        public Task<Client> GetClientByIdAsync(
+        public Task<ClientDetailedResponseDto> GetClientByIdAsync(
             int id, 
             CancellationToken ct = default);
-        public Task<Client> CreateClientAsync(
+        public Task<ClientResponseDto> CreateClientAsync(
             CreateClientDto dto,
             CancellationToken ct = default);
-        public Task<Client> UpdateClientAsync(
+        public Task<ClientResponseDto> UpdateClientAsync(
             int id, 
             UpdateClientDto dto,
             CancellationToken ct = default);
-        public Task<Client> DeleteClientAsync(
+        public Task DeleteClientAsync(
             int id,
             CancellationToken ct = default);
     }
