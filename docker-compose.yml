@@ -4,9 +4,9 @@ services:
     container_name: ServiceCRM-postgres
     restart: always
     environment:
-      POSTGRES_USER: voimax
-      POSTGRES_PASSWORD: voimaxis2026
-      POSTGRES_DB: ServiceCRM
+	 POSTGRES_DB: ${DB_NAME:-ServiceCRM}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

@@ -35,7 +35,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    options.InstanceName = "OrderService_";
+    options.InstanceName = "ServiceCRM_";
 });
 
 var app = builder.Build();
