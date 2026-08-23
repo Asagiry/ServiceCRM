@@ -1,12 +1,14 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ServiceCRM;
-using ServiceCRM.Class;
+using ServiceCRM.Models;
 using ServiceCRM.Middlewares;
 using ServiceCRM.Services.AnalyticsServices;
 using ServiceCRM.Services.LeadSourceService;
+using ServiceCRM.Services.ClientServices;
 using ServiceCRM.Services.MasterServices;
+using ServiceCRM.Services.PaymentServices;
 using ServiceCRM.Services.ServiceRequestServices;
 using System.Reflection;
 
@@ -28,6 +30,7 @@ builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
 builder.Services.AddScoped<ILeadSourceService, LeadSourceService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+﻿using ServiceCRM.Models.Request;
+using System.ComponentModel;
 
-namespace ServiceCRM.Class
+namespace ServiceCRM.Models
 {
     public class Master
     {

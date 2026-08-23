@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Class;
+using ServiceCRM.DTOs.PaymentDTOs;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
+using ServiceCRM.Models.Request;
+using ServiceCRM.Services.PaymentServices;
 using ServiceCRM.Services.ServiceRequestServices;
 using System.ComponentModel;
 
@@ -11,9 +13,13 @@ namespace ServiceCRM.Controllers.Base
     public class ServiceRequestsController : ControllerBase
     {
         IServiceRequestService _serviceRequestService;
-        public ServiceRequestsController(IServiceRequestService serviceRequestService)
+        IPaymentService _paymentService;
+        public ServiceRequestsController(
+            IServiceRequestService serviceRequestService,
+            IPaymentService paymentService)
         {
             _serviceRequestService = serviceRequestService;
+            _paymentService = paymentService;
         }
 
 
@@ -78,6 +84,29 @@ namespace ServiceCRM.Controllers.Base
             return Ok(await _serviceRequestService.DeleteServiceRequestAsync(id, ct));
         }
 
+        #region Payments
+
+        [HttpGet("{requestId}/payments")]
+        [EndpointSummary("Получить платеж по {id} заявки")]
+        public async Task<ActionResult<Payment>> GetPaymentByServiceRequestId(
+            [FromRoute][Description("Id заявки")]int requestId,
+            CancellationToken ct)
+        {
+            return Ok(await _paymentService.GetPaymentByServiceRequestIdAsync(requestId, ct));
+        }
+
+        [HttpPost("{requestId}/payments")]
+        [EndpointSummary("Создать платеж на заявку по {id}")]
+        public async Task<ActionResult<Payment>> CreatePaymentByServiceRequestId(
+            [FromRoute][Description("Id Заявки")]int requestId,
+            [FromBody][Description("Dto платежа")]CreatePaymentDto dto,
+            CancellationToken ct)
+        {
+            Payment payment = await _paymentService.CreatePaymentByServiceRequestIdAsync(requestId, dto, ct);
+            return CreatedAtAction(nameof(GetPaymentByServiceRequestId), new { id = payment.ServiceRequestId }, payment);
+        }
+
+        #endregion
 
     }
 }

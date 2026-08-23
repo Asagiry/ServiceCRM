@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Class;
+using ServiceCRM.Models;
 using ServiceCRM.DTOs.ClientDTOs;
 using System.ComponentModel;
+
+using ServiceCRM.Services.ClientServices;
 
 namespace ServiceCRM.Controllers.Base
 {

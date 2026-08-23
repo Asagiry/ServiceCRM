@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using ServiceCRM.DTOs.PaymentDTOs;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
-namespace ServiceCRM.Class
+namespace ServiceCRM.Models.Request
 {
     public class Payment
     {
@@ -17,6 +19,17 @@ namespace ServiceCRM.Class
         public DateTime PaymentDate { get; set; }
         [Description("Метод платежа")]
         public required PaymentMethod PaymentMethod { get; set; }
+
+        public Payment() { }
+
+        [SetsRequiredMembers]
+        public Payment(int serviceRequestId,CreatePaymentDto dto)
+        {
+            ServiceRequestId = serviceRequestId;
+            Amount = dto.Amount;
+            PaymentDate = dto.PaymentDate;
+            PaymentMethod = dto.PaymentMethod;
+        }
     }
 
     public enum PaymentMethod

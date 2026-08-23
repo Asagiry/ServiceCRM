@@ -1,4 +1,4 @@
-﻿using ServiceCRM.Class.Lead;
+﻿using ServiceCRM.Models.Lead;
 using System.ComponentModel;
 
 namespace ServiceCRM.DTOs.LeadSourceDTOs

@@ -195,13 +195,13 @@ namespace ServiceCRM.Services.AnalyticsServices
 
             string totalRevenueSql = """
                 SELECT
-                    "SourceId",
+                    "LeadSourceId",
                     COUNT(*) AS "RequestsCount",
                     COALESCE(SUM("TotalPrice"), 0) AS "TotalRevenue"
                 FROM "ServiceRequests"
-                WHERE (@FromDate IS NULL OR "CreatedAt" >= @FromDate)
-                  AND (@ToDate IS NULL OR "CreatedAt" <= @ToDate)
-                GROUP BY "SourceId";
+                WHERE (CAST(@FromDate AS timestamptz) IS NULL OR "CreatedAt" >= CAST(@FromDate AS timestamptz))
+                  AND (CAST(@ToDate AS timestamptz) IS NULL OR "CreatedAt" <= CAST(@ToDate AS timestamptz))
+                GROUP BY "LeadSourceId";
                 """;
 
             string totalSpentSql = """
@@ -209,8 +209,8 @@ namespace ServiceCRM.Services.AnalyticsServices
                     "LeadSourceId",
                     COALESCE(SUM("Amount"), 0) AS "TotalSpent"
                 FROM "AdExpenses"
-                WHERE (@FromDate IS NULL OR "ExpenseStartDate" >= @FromDate)
-                  AND (@ToDate IS NULL OR "ExpenseStartDate" <= @ToDate)
+                WHERE (CAST(@FromDate AS timestamptz) IS NULL OR "ExpenseStartDate" >= CAST(@FromDate AS timestamptz))
+                  AND (CAST(@ToDate AS timestamptz) IS NULL OR "ExpenseStartDate" <= CAST(@ToDate AS timestamptz))
                 GROUP BY "LeadSourceId";
                 """;
 
@@ -219,14 +219,14 @@ namespace ServiceCRM.Services.AnalyticsServices
             var spentCmd = new CommandDefinition(totalSpentSql, parameters, cancellationToken: ct);
 
             var leadSources = (await connection.QueryAsync<(int Id, string Name)>(leadSourcesCmd)).ToList();
-            var revenueData = (await connection.QueryAsync<(int SourceId, int RequestsCount, decimal TotalRevenue)>(revenueCmd)).ToList();
+            var revenueData = (await connection.QueryAsync<(int LeadSourceId, int RequestsCount, decimal TotalRevenue)>(revenueCmd)).ToList();
             var spentData = (await connection.QueryAsync<(int LeadSourceId, decimal TotalSpent)>(spentCmd)).ToList();
 
             var result = new List<SourceAnalyticsDto>();
 
             foreach (var source in leadSources)
             {
-                var rev = revenueData.FirstOrDefault(r => r.SourceId == source.Id);
+                var rev = revenueData.FirstOrDefault(r => r.LeadSourceId == source.Id);
                 var exp = spentData.FirstOrDefault(e => e.LeadSourceId == source.Id);
 
                 int count = rev.RequestsCount;

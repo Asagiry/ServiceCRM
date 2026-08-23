@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Class.Lead;
+using ServiceCRM.Models.Lead;
 using ServiceCRM.DTOs.LeadSourceDTOs;
 using ServiceCRM.Services.LeadSourceService;
 using System.ComponentModel;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ServiceCRM.Class;
-using ServiceCRM.Class.Lead;
+using ServiceCRM.Models;
+using ServiceCRM.Models.Lead;
+using ServiceCRM.Models.Request;
 namespace ServiceCRM
 {
     public class AppDbContext : DbContext
@@ -45,11 +46,21 @@ namespace ServiceCRM
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ServiceRequest>()
+                .HasOne(r => r.LeadSource)
+                .WithMany()
+                .HasForeignKey(r => r.LeadSourceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ServiceRequest>()
                 .Property(r => r.TotalPrice)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<ServiceRequest>()
                 .Property(r => r.DirectExpenses)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<ServiceRequest>()
+                .Property(r => r.MasterPayout)
                 .HasPrecision(18, 2);
         }
 

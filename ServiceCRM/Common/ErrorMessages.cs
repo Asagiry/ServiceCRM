@@ -7,5 +7,6 @@
         public static string ServiceRequestNotFound(int id) => $"Заявка с Id = {id} не найдена.";
         public static string LeadSourceNotFound(int id) => $"Источник лидов с Id = {id} не найден.";
         public static string AdExpenseNotFound(int id) => $"Расход на рекламу с Id = {id} не найден.";
+        public static string PaymentNotFound(int requestId) => $"Платеж по заявке #{requestId} не найден.";
     }
 }

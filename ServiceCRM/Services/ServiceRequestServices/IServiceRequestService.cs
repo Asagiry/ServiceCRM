@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Update.Internal;
-using ServiceCRM.Class;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
+using ServiceCRM.Models.Request;
 
 namespace ServiceCRM.Services.ServiceRequestServices
 {

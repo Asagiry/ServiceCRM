@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ServiceCRM.Class;
+using ServiceCRM.Models;
 using System.ComponentModel;
 
 namespace ServiceCRM.DTOs.ClientDTOs

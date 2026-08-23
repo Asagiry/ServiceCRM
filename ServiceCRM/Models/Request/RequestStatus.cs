@@ -1,4 +1,4 @@
-﻿namespace ServiceCRM.Class
+﻿namespace ServiceCRM.Models.Request
 {
     public enum RequestStatus
     {

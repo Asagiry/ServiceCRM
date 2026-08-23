@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ServiceCRM.Class.Lead
+namespace ServiceCRM.Models.Lead
 {
     [Description("Источник лидов")]
     public class LeadSource

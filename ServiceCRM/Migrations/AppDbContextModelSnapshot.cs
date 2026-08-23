@@ -51,37 +51,6 @@ namespace ServiceCRM.Migrations
                     b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Laed.LeadSource", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("TargetWeeklyBudget")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("WebsiteUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("isActive")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LeadSource");
-                });
-
             modelBuilder.Entity("ServiceCRM.Class.Lead.AdExpense", b =>
                 {
                     b.Property<int>("Id")
@@ -104,7 +73,38 @@ namespace ServiceCRM.Migrations
 
                     b.HasIndex("LeadSourceId");
 
-                    b.ToTable("AdExpense");
+                    b.ToTable("AdExpenses");
+                });
+
+            modelBuilder.Entity("ServiceCRM.Class.Lead.LeadSource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TargetWeeklyBudget")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeadSources");
                 });
 
             modelBuilder.Entity("ServiceCRM.Class.Master", b =>
@@ -205,11 +205,15 @@ namespace ServiceCRM.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("LeadSourceId")
+                    b.Property<int>("LeadSourceId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("MasterId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("MasterPayout")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("ProblemDescription")
                         .IsRequired()
@@ -217,9 +221,6 @@ namespace ServiceCRM.Migrations
 
                     b.Property<DateTime?>("SheduledAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SourceId")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -241,7 +242,7 @@ namespace ServiceCRM.Migrations
 
             modelBuilder.Entity("ServiceCRM.Class.Lead.AdExpense", b =>
                 {
-                    b.HasOne("ServiceCRM.Class.Laed.LeadSource", "LeadSource")
+                    b.HasOne("ServiceCRM.Class.Lead.LeadSource", "LeadSource")
                         .WithMany("AdExpenses")
                         .HasForeignKey("LeadSourceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -269,9 +270,11 @@ namespace ServiceCRM.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ServiceCRM.Class.Laed.LeadSource", "LeadSource")
+                    b.HasOne("ServiceCRM.Class.Lead.LeadSource", "LeadSource")
                         .WithMany()
-                        .HasForeignKey("LeadSourceId");
+                        .HasForeignKey("LeadSourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ServiceCRM.Class.Master", "Master")
                         .WithMany("Requests")
@@ -290,7 +293,7 @@ namespace ServiceCRM.Migrations
                     b.Navigation("Requests");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Laed.LeadSource", b =>
+            modelBuilder.Entity("ServiceCRM.Class.Lead.LeadSource", b =>
                 {
                     b.Navigation("AdExpenses");
                 });

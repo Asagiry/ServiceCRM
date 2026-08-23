@@ -12,7 +12,7 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
         [Description("Адрес заявки")]
         public required string Address { get; set; }
         [Description("Откуда пришла заявка")]
-        public required int SourceId { get; set; }
+        public required int LeadSourceId { get; set; }
         [Description("Описание проблемы")]
         public required string ProblemDescription { get; set; }
         [Description("Тип техники")]

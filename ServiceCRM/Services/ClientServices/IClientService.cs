@@ -1,6 +1,8 @@
 ﻿using ServiceCRM.DTOs.ClientDTOs;
 
-namespace ServiceCRM.Class
+using ServiceCRM.Models;
+
+namespace ServiceCRM.Services.ClientServices
 {
     public interface IClientService
     {

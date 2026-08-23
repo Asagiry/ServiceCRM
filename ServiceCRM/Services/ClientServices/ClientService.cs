@@ -1,9 +1,11 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Common;
 using ServiceCRM.DTOs.ClientDTOs;
 using ServiceCRM.Exceptions;
 
-namespace ServiceCRM.Class
+using ServiceCRM.Models;
+
+namespace ServiceCRM.Services.ClientServices
 {
     public class ClientService: IClientService
     {

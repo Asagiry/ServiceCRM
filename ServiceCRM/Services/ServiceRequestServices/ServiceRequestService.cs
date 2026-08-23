@@ -1,9 +1,9 @@
 
 using Microsoft.EntityFrameworkCore;
-using ServiceCRM.Class;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
 using ServiceCRM.Exceptions;
 using ServiceCRM.Common;
+using ServiceCRM.Models.Request;
 
 namespace ServiceCRM.Services.ServiceRequestServices
 {

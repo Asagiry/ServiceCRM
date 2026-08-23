@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceCRM.Class;
+﻿using Microsoft.EntityFrameworkCore;
+using ServiceCRM.Models;
 using ServiceCRM.Common;
 using ServiceCRM.DTOs.MasterDTOs;
 using ServiceCRM.Exceptions;

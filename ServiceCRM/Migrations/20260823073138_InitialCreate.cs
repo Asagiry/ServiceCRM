@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ServiceCRM.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLeadSourceAndExpenses : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +30,7 @@ namespace ServiceCRM.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LeadSource",
+                name: "LeadSources",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -38,12 +38,12 @@ namespace ServiceCRM.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     WebsiteUrl = table.Column<string>(type: "text", nullable: false),
                     TargetWeeklyBudget = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    isActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LeadSource", x => x.Id);
+                    table.PrimaryKey("PK_LeadSources", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,7 +66,7 @@ namespace ServiceCRM.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdExpense",
+                name: "AdExpenses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -77,11 +77,11 @@ namespace ServiceCRM.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdExpense", x => x.Id);
+                    table.PrimaryKey("PK_AdExpenses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AdExpense_LeadSource_LeadSourceId",
+                        name: "FK_AdExpenses_LeadSources_LeadSourceId",
                         column: x => x.LeadSourceId,
-                        principalTable: "LeadSource",
+                        principalTable: "LeadSources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -92,18 +92,18 @@ namespace ServiceCRM.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    LeadSourceId = table.Column<int>(type: "integer", nullable: true),
                     ClientId = table.Column<int>(type: "integer", nullable: false),
                     MasterId = table.Column<int>(type: "integer", nullable: true),
                     City = table.Column<string>(type: "text", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
-                    SourceId = table.Column<int>(type: "integer", nullable: false),
+                    LeadSourceId = table.Column<int>(type: "integer", nullable: false),
                     ProblemDescription = table.Column<string>(type: "text", nullable: false),
                     EquipmentType = table.Column<string>(type: "text", nullable: false),
                     SheduledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     DirectExpenses = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    MasterPayout = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -116,10 +116,11 @@ namespace ServiceCRM.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ServiceRequests_LeadSource_LeadSourceId",
+                        name: "FK_ServiceRequests_LeadSources_LeadSourceId",
                         column: x => x.LeadSourceId,
-                        principalTable: "LeadSource",
-                        principalColumn: "Id");
+                        principalTable: "LeadSources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ServiceRequests_Masters_MasterId",
                         column: x => x.MasterId,
@@ -151,8 +152,8 @@ namespace ServiceCRM.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdExpense_LeadSourceId",
-                table: "AdExpense",
+                name: "IX_AdExpenses_LeadSourceId",
+                table: "AdExpenses",
                 column: "LeadSourceId");
 
             migrationBuilder.CreateIndex(
@@ -180,7 +181,7 @@ namespace ServiceCRM.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AdExpense");
+                name: "AdExpenses");
 
             migrationBuilder.DropTable(
                 name: "Payments");
@@ -192,7 +193,7 @@ namespace ServiceCRM.Migrations
                 name: "Clients");
 
             migrationBuilder.DropTable(
-                name: "LeadSource");
+                name: "LeadSources");
 
             migrationBuilder.DropTable(
                 name: "Masters");

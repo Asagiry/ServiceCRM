@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ServiceCRM.Class;
+using ServiceCRM.Models;
 using System.ComponentModel;
 
 namespace ServiceCRM.DTOs.ServiceRequestDTOs
@@ -20,7 +20,7 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
                 .NotEmpty()
                 .Length(5, 100);
 
-            RuleFor(x => x.SourceId)
+            RuleFor(x => x.LeadSourceId)
                .GreaterThan(0)
                .WithMessage("Необходимо указать корректный Id источника.");
 

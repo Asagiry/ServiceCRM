@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Class;
+using ServiceCRM.Models;
 using ServiceCRM.DTOs.MasterDTOs;
 using ServiceCRM.Services.MasterServices;
 using System.ComponentModel;

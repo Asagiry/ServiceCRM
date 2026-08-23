@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ServiceCRM.Class.Lead
+namespace ServiceCRM.Models.Lead
 {
     [Description("Расход на рекламу текущего источника")]
     public class AdExpense

@@ -4,7 +4,7 @@ services:
     container_name: ServiceCRM-postgres
     restart: always
     environment:
-	 POSTGRES_DB: ${DB_NAME:-ServiceCRM}
+      POSTGRES_DB: ${DB_NAME:-ServiceCRM}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:

@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceCRM.Class.Lead;
+﻿using Microsoft.EntityFrameworkCore;
+using ServiceCRM.Models.Lead;
 using ServiceCRM.Common;
 using ServiceCRM.DTOs.LeadSourceDTOs;
 using ServiceCRM.Exceptions;
