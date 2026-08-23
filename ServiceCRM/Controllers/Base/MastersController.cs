@@ -62,7 +62,8 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемого мастера")] int id,
             CancellationToken ct)
         {
-            return Ok(await _masterServise.DeleteMasterAsync(id, ct));
+            await _masterServise.DeleteMasterAsync(id, ct);
+            return NoContent();
         }
 
         

@@ -24,7 +24,7 @@ namespace ServiceCRM.Middlewares
             }
             catch (AppException ex)
             {
-                _logger.LogWarning(ex, $"Произошла ошибка, {ex.Message}");
+                _logger.LogWarning(ex, "Произошла ошибка: {Message}",ex.Message);
                 context.Response.StatusCode = ex.StatusCode;
                 context.Response.ContentType = "application/json";
 
@@ -39,7 +39,7 @@ namespace ServiceCRM.Middlewares
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка, {ex.Message}");
+                _logger.LogError(ex, "Произошла ошибка: {Message}", ex.Message);
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
@@ -47,7 +47,7 @@ namespace ServiceCRM.Middlewares
                 var response = new
                 {
                     message = "Внутренняя ошибка сервера, попробуйте позже.",
-                    error = ex.Message,
+                    error = _env.IsDevelopment() ? ex.Message : null,
                     stackTrace = _env.IsDevelopment() ? ex.StackTrace : null
                 };
 

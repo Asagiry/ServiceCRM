@@ -39,7 +39,7 @@ namespace ServiceCRM.Models.Request
         public required string EquipmentType { get; set; }
 
         [Description("Дата выезда на заявку")]
-        public DateTime? SheduledAt { get; set; }
+        public DateTime? ScheduledAt { get; set; }
 
         [Description("Статус заявки")]
         public RequestStatus Status { get; set; } = RequestStatus.New;
@@ -68,7 +68,7 @@ namespace ServiceCRM.Models.Request
             LeadSourceId = dto.LeadSourceId;
             ProblemDescription = dto.ProblemDescription;
             EquipmentType = dto.EquipmentType;
-            SheduledAt = dto.SheduledAt;
+            ScheduledAt = dto.ScheduledAt;
         }
 
         public void UpdateServiceRequest(UpdateServiceRequestDto dto)
@@ -80,7 +80,7 @@ namespace ServiceCRM.Models.Request
             LeadSourceId = dto.LeadSourceId;
             ProblemDescription = dto.ProblemDescription;
             EquipmentType = dto.EquipmentType;
-            SheduledAt = dto.SheduledAt;
+            ScheduledAt = dto.ScheduledAt;
             Status = dto.Status;
         }
 

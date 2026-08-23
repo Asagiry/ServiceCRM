@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.AnalyticsDTOs;
+using System.ComponentModel;
 using System.Text.Json;
 
 namespace ServiceCRM.Services.AnalyticsServices
@@ -27,7 +29,7 @@ namespace ServiceCRM.Services.AnalyticsServices
         public async Task<DashboardTodayDto> GetDashboardTodayDtoAsync(
             CancellationToken ct = default)
         {
-            string cacheKey = $"dashboard_{DateTime.UtcNow:yyyyMMdd}";
+            string cacheKey = CacheKeys.DashboardToday;
             string? cashedJson = await _cache.GetStringAsync(cacheKey);
 
             if (cashedJson != null)
@@ -61,7 +63,7 @@ namespace ServiceCRM.Services.AnalyticsServices
                 """
                 SELECT 
                     COUNT(*) FILTER(WHERE "MasterId" IS NULL) AS "UnassignedTodayCount",
-                    COUNT(*) FILTER(WHERE "SheduledAt" >= @todayStart AND "SheduledAt" < @tomorrowStart) AS "SheduledTodayCount",
+                    COUNT(*) FILTER(WHERE "ScheduledAt" >= @todayStart AND "ScheduledAt" < @tomorrowStart) AS "ScheduledTodayCount",
                     COUNT(*) FILTER(WHERE "Status" in (1,2)) AS "InProgressNow",
                     COUNT(*) FILTER(WHERE "Status" = 3) AS "CompletedTodayCount",
                     COALESCE(SUM("TotalPrice") FILTER (WHERE "Status" = 3), 0) AS "RevenueToday",
@@ -70,7 +72,7 @@ namespace ServiceCRM.Services.AnalyticsServices
                     0.0 AS "OwnerProfitToday"
                 FROM "ServiceRequests"
                 WHERE ("CreatedAt" >= @todayStart AND "CreatedAt" < @tomorrowStart)
-                   OR ("SheduledAt" >= @todayStart AND "SheduledAt" < @tomorrowStart);
+                   OR ("ScheduledAt" >= @todayStart AND "ScheduledAt" < @tomorrowStart);
                 """;
 
             var command = new CommandDefinition(
@@ -94,7 +96,9 @@ namespace ServiceCRM.Services.AnalyticsServices
             DateTime? toDate,
             CancellationToken ct = default)
         {
-            string cacheKey = $"dashboard_{fromDate:yyyyMMdd}_{toDate:yyyyMMdd}";
+            var (from, to) = ResolveRange(fromDate, toDate);
+
+            string cacheKey = CacheKeys.AnalyticsSummary(from, to);
             string? cashedJson = await _cache.GetStringAsync(cacheKey);
 
             if(cashedJson != null)
@@ -102,7 +106,7 @@ namespace ServiceCRM.Services.AnalyticsServices
                 return JsonSerializer.Deserialize<AnalyticsSummaryDto>(cashedJson) ?? new AnalyticsSummaryDto();
             }
 
-            AnalyticsSummaryDto dto = await _GetSummaryDtoFromDapperAsync(fromDate, toDate, ct);
+            AnalyticsSummaryDto dto = await _GetSummaryDtoFromDapperAsync(from, to, ct);
 
             var options = new DistributedCacheEntryOptions
             {
@@ -115,13 +119,10 @@ namespace ServiceCRM.Services.AnalyticsServices
         }
 
         private async Task<AnalyticsSummaryDto> _GetSummaryDtoFromDapperAsync(
-            DateTime? fromDate, 
-            DateTime? toDate,
+            DateTime fromDate, 
+            DateTime toDate,
             CancellationToken ct = default)
         {
-            fromDate = fromDate ?? DateTime.UtcNow.AddDays(-30);
-            toDate = toDate ?? DateTime.UtcNow;
-
             string connectionString = _configuration.GetConnectionString(connectionName) ?? "";
             await using var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync(ct);
@@ -167,7 +168,7 @@ namespace ServiceCRM.Services.AnalyticsServices
                 : 0;
 
             summary.AverageCheck = summary.CompletedCount > 0
-                ? Math.Round((decimal)summary.Revenue / summary.CompletedCount * 100, 2)
+                ? Math.Round((decimal)summary.Revenue / summary.CompletedCount, 2)
                 : 0;
 
             summary.AdExpenses = adSpent;
@@ -177,9 +178,35 @@ namespace ServiceCRM.Services.AnalyticsServices
             return summary;
         }
 
+
         public async Task<List<SourceAnalyticsDto>> GetSourceAnalyticsAsync(
             DateTime? fromDate,
             DateTime? toDate,
+            CancellationToken ct = default)
+        {
+            var (from, to) = ResolveRange(fromDate, toDate);
+            string cacheKey = CacheKeys.AnalyticsSources(from, to);
+            string? cashedJson = await _cache.GetStringAsync(cacheKey);
+
+            if (cashedJson != null)
+            {
+                return JsonSerializer.Deserialize<List<SourceAnalyticsDto>>(cashedJson) ?? new List<SourceAnalyticsDto>();
+            }
+
+            List<SourceAnalyticsDto> result = await _GetSourceAnalyticsFromDapperAsync(from, to, ct);
+
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(120)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), options);
+
+            return result;
+        }
+
+        public async Task<List<SourceAnalyticsDto>> _GetSourceAnalyticsFromDapperAsync(
+            DateTime fromDate,
+            DateTime toDate,
             CancellationToken ct = default)
         {
             string connectionString = _configuration.GetConnectionString(connectionName) ?? "";
@@ -199,8 +226,7 @@ namespace ServiceCRM.Services.AnalyticsServices
                     COUNT(*) AS "RequestsCount",
                     COALESCE(SUM("TotalPrice"), 0) AS "TotalRevenue"
                 FROM "ServiceRequests"
-                WHERE (CAST(@FromDate AS timestamptz) IS NULL OR "CreatedAt" >= CAST(@FromDate AS timestamptz))
-                  AND (CAST(@ToDate AS timestamptz) IS NULL OR "CreatedAt" <= CAST(@ToDate AS timestamptz))
+                WHERE "CreatedAt" >= @FromDate AND "CreatedAt" <= @ToDate
                 GROUP BY "LeadSourceId";
                 """;
 
@@ -209,8 +235,7 @@ namespace ServiceCRM.Services.AnalyticsServices
                     "LeadSourceId",
                     COALESCE(SUM("Amount"), 0) AS "TotalSpent"
                 FROM "AdExpenses"
-                WHERE (CAST(@FromDate AS timestamptz) IS NULL OR "ExpenseStartDate" >= CAST(@FromDate AS timestamptz))
-                  AND (CAST(@ToDate AS timestamptz) IS NULL OR "ExpenseStartDate" <= CAST(@ToDate AS timestamptz))
+                WHERE "ExpenseStartDate" >= @FromDate AND "ExpenseStartDate" <= @ToDate
                 GROUP BY "LeadSourceId";
                 """;
 
@@ -246,8 +271,15 @@ namespace ServiceCRM.Services.AnalyticsServices
                     Roi = roi
                 });
             }
-
             return result;
+
+        }
+
+        private static (DateTime From, DateTime To) ResolveRange(DateTime? fromDate, DateTime? toDate)
+        {
+            DateTime to = toDate?.Date ?? DateTime.UtcNow;
+            DateTime from = fromDate ?? new DateTime(to.Year, to.Month, 1);
+            return (from, to);
         }
 
 

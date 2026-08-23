@@ -81,7 +81,8 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемой заявки")]int id,
             CancellationToken ct)
         {
-            return Ok(await _serviceRequestService.DeleteServiceRequestAsync(id, ct));
+            await _serviceRequestService.DeleteServiceRequestAsync(id, ct);
+            return NoContent();
         }
 
         #region Payments

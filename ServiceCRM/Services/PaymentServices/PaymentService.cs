@@ -30,7 +30,7 @@ namespace ServiceCRM.Services.PaymentServices
             if (alreadyPaid)
                 throw new BadRequestException("Заявка уже оплачена.");
 
-            if (serviceRequest.TotalPrice >= 0 && dto.Amount > serviceRequest.TotalPrice)
+            if (dto.Amount > serviceRequest.TotalPrice)
                 throw new BadRequestException($"Сумма платежа ({dto.Amount} ₽) превышает стоимость заказа ({serviceRequest.TotalPrice} ₽)!");
 
             Payment payment = new Payment(requestId,dto);

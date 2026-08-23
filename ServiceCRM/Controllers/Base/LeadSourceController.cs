@@ -61,7 +61,8 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id удаляемого источника")]int id,
             CancellationToken ct)
         {
-            return Ok(await _leadSourceService.DeleteLeadSourceAsync(id, ct));
+            await _leadSourceService.DeleteLeadSourceAsync(id, ct);
+            return NoContent();
         }
 
         [HttpPost("{id}/expenses")]
@@ -80,7 +81,8 @@ namespace ServiceCRM.Controllers.Base
             [FromRoute][Description("Id рекламной компании")]int id,
             CancellationToken ct)
         {
-            return Ok(await _leadSourceService.DeleteAdExpenseAsync(id, ct));
+            await _leadSourceService.DeleteAdExpenseAsync(id, ct);
+            return NoContent();
         }
 
     }

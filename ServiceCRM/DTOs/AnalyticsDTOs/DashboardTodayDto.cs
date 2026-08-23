@@ -8,7 +8,7 @@ namespace ServiceCRM.DTOs.AnalyticsDTOs
         [Description("Количество заявок требующих назначения мастера")]
         public int UnassignedTodayCount { get; set; }
         [Description("Запланировано выездов на сегодня")]
-        public int SheduledTodayCount { get; set; }
+        public int ScheduledTodayCount { get; set; }
         [Description("Заказов в работе прямо сейчас")]
         public int InProgressNow { get; set; }
         [Description("Количество выполненных заявок за сегодня")]

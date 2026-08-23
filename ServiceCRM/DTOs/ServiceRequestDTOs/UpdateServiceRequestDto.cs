@@ -20,7 +20,7 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
         [Description("Тип техники")]
         public required string EquipmentType { get; set; }
         [Description("Дата выезда на заявку")]
-        public DateTime SheduledAt { get; set; }
+        public DateTime ScheduledAt { get; set; }
         [Description("Статус заявки")]
         public required RequestStatus Status { get; set; } = RequestStatus.New;
     }

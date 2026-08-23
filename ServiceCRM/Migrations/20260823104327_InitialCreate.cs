@@ -99,7 +99,7 @@ namespace ServiceCRM.Migrations
                     LeadSourceId = table.Column<int>(type: "integer", nullable: false),
                     ProblemDescription = table.Column<string>(type: "text", nullable: false),
                     EquipmentType = table.Column<string>(type: "text", nullable: false),
-                    SheduledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ScheduledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     DirectExpenses = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
@@ -120,7 +120,7 @@ namespace ServiceCRM.Migrations
                         column: x => x.LeadSourceId,
                         principalTable: "LeadSources",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ServiceRequests_Masters_MasterId",
                         column: x => x.MasterId,

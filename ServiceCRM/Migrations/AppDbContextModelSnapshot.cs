@@ -23,7 +23,7 @@ namespace ServiceCRM.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ServiceCRM.Class.Client", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Client", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,7 +51,7 @@ namespace ServiceCRM.Migrations
                     b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Lead.AdExpense", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Lead.AdExpense", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,7 @@ namespace ServiceCRM.Migrations
                     b.ToTable("AdExpenses");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Lead.LeadSource", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Lead.LeadSource", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,7 +107,7 @@ namespace ServiceCRM.Migrations
                     b.ToTable("LeadSources");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Master", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Master", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,7 +147,7 @@ namespace ServiceCRM.Migrations
                     b.ToTable("Masters");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Payment", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Request.Payment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,7 +175,7 @@ namespace ServiceCRM.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.ServiceRequest", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Request.ServiceRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,7 +219,7 @@ namespace ServiceCRM.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("SheduledAt")
+                    b.Property<DateTime?>("ScheduledAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
@@ -240,9 +240,9 @@ namespace ServiceCRM.Migrations
                     b.ToTable("ServiceRequests");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Lead.AdExpense", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Lead.AdExpense", b =>
                 {
-                    b.HasOne("ServiceCRM.Class.Lead.LeadSource", "LeadSource")
+                    b.HasOne("ServiceCRM.Models.Lead.LeadSource", "LeadSource")
                         .WithMany("AdExpenses")
                         .HasForeignKey("LeadSourceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -251,9 +251,9 @@ namespace ServiceCRM.Migrations
                     b.Navigation("LeadSource");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Payment", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Request.Payment", b =>
                 {
-                    b.HasOne("ServiceCRM.Class.ServiceRequest", "ServiceRequest")
+                    b.HasOne("ServiceCRM.Models.Request.ServiceRequest", "ServiceRequest")
                         .WithMany()
                         .HasForeignKey("ServiceRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -262,21 +262,21 @@ namespace ServiceCRM.Migrations
                     b.Navigation("ServiceRequest");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.ServiceRequest", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Request.ServiceRequest", b =>
                 {
-                    b.HasOne("ServiceCRM.Class.Client", "Client")
+                    b.HasOne("ServiceCRM.Models.Client", "Client")
                         .WithMany("Requests")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ServiceCRM.Class.Lead.LeadSource", "LeadSource")
+                    b.HasOne("ServiceCRM.Models.Lead.LeadSource", "LeadSource")
                         .WithMany()
                         .HasForeignKey("LeadSourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ServiceCRM.Class.Master", "Master")
+                    b.HasOne("ServiceCRM.Models.Master", "Master")
                         .WithMany("Requests")
                         .HasForeignKey("MasterId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -288,17 +288,17 @@ namespace ServiceCRM.Migrations
                     b.Navigation("Master");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Client", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Client", b =>
                 {
                     b.Navigation("Requests");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Lead.LeadSource", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Lead.LeadSource", b =>
                 {
                     b.Navigation("AdExpenses");
                 });
 
-            modelBuilder.Entity("ServiceCRM.Class.Master", b =>
+            modelBuilder.Entity("ServiceCRM.Models.Master", b =>
                 {
                     b.Navigation("Requests");
                 });

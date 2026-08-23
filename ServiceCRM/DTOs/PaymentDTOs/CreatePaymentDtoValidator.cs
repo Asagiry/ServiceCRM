@@ -12,7 +12,7 @@ namespace ServiceCRM.DTOs.PaymentDTOs
 
             RuleFor(x => x.PaymentMethod)
                 .IsInEnum()
-                .WithMessage("Неизвестный статус оплаты.");
+                .WithMessage("Неизвестный способ оплаты.");
 
         }
     }
