@@ -100,6 +100,31 @@ namespace ServiceCRM.Services.ServiceRequestServices
             return serviceRequest.ToDto();
         }
 
+        public async Task<ServiceRequestResponseDto> UpdateStatusServiceRequestAsync(
+            int id,
+            UpdateStatusServiceRequestDto dto,
+            CancellationToken ct = default)
+        {
+            ServiceRequest serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
+
+            RequestStatus currentStatus = serviceRequest.Status;
+            RequestStatus newStatus = dto.Status;
+
+            EnsureTransitionAllowed(currentStatus, newStatus);
+
+            if (newStatus == RequestStatus.Cancelled && await _context.Payments.AnyAsync(p => p.ServiceRequestId == id))
+            {
+                throw new ConflictException("Невозможно отменить заявку с внесеным платежом");
+            }
+
+            serviceRequest.Status = newStatus;
+
+            await _context.SaveChangesAsync(ct);
+
+            return serviceRequest.ToDto();
+        }
+
         public async Task<ServiceRequestResponseDto> CompleteServiceRequestAsync(
             int id, 
             CompleteServiceRequestDto dto,
@@ -107,6 +132,8 @@ namespace ServiceCRM.Services.ServiceRequestServices
         {
             ServiceRequest serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
+
+            EnsureTransitionAllowed(serviceRequest.Status, RequestStatus.Completed);
 
             serviceRequest.CompleteServiceRequest(dto);
 
@@ -127,6 +154,23 @@ namespace ServiceCRM.Services.ServiceRequestServices
             _context.ServiceRequests.Remove(serviceRequest);
 
             await _context.SaveChangesAsync(ct);
+        }
+
+
+
+        private static readonly Dictionary<RequestStatus, RequestStatus[]> AllowedTransitions =
+        new()
+        {
+            [RequestStatus.New] = [RequestStatus.InProgress, RequestStatus.Cancelled],
+            [RequestStatus.InProgress] = [RequestStatus.Completed, RequestStatus.Cancelled],
+        };
+
+        private void EnsureTransitionAllowed(RequestStatus currentStatus, RequestStatus targetStatus)
+        {
+            if (!AllowedTransitions.TryGetValue(currentStatus, out var allowed) || !allowed.Contains(targetStatus))
+            {
+                throw new ConflictException($"Недопустимый переход статуса из '{currentStatus}' в '{targetStatus}'.");
+            }
         }
 
     }

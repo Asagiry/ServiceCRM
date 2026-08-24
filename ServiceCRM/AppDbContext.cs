@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Models;
+using ServiceCRM.Models.Auth;
 using ServiceCRM.Models.Lead;
 using ServiceCRM.Models.Request;
 namespace ServiceCRM
@@ -12,6 +13,8 @@ namespace ServiceCRM
         public DbSet<Payment> Payments => Set<Payment>();
         public DbSet<LeadSource> LeadSources => Set<LeadSource>();
         public DbSet<AdExpense> AdExpenses => Set<AdExpense>();
+        public DbSet<User> Users => Set<User>();
+
 
         public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
         {
@@ -22,16 +25,18 @@ namespace ServiceCRM
         {
             base.OnModelCreating(modelBuilder);
 
-            setServiceRequestDb(modelBuilder);
+            SetServiceRequestDb(modelBuilder);
 
-            setPaymentDb(modelBuilder);
+            SetPaymentDb(modelBuilder);
 
-            setMasterDb(modelBuilder);
+            SetMasterDb(modelBuilder);
 
-            setLeadSourceDb(modelBuilder);
+            SetLeadSourceDb(modelBuilder);
+
+            SetUserDb(modelBuilder);
         }
 
-        public void setServiceRequestDb(ModelBuilder modelBuilder)
+        public void SetServiceRequestDb(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ServiceRequest>()
                .HasOne(m => m.Master)
@@ -64,21 +69,21 @@ namespace ServiceCRM
                 .HasPrecision(18, 2);
         }
 
-        public void setPaymentDb(ModelBuilder modelBuilder)
+        public void SetPaymentDb(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
         }
 
-        public void setMasterDb(ModelBuilder modelBuilder)
+        public void SetMasterDb(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Master>()
                 .Property(m => m.CommissionPercent)
                 .HasPrecision(5, 2);
         }
         
-        public void setLeadSourceDb(ModelBuilder modelBuilder)
+        public void SetLeadSourceDb(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<LeadSource>()
                 .Property(s => s.TargetWeeklyBudget)
@@ -94,6 +99,13 @@ namespace ServiceCRM
                 .HasForeignKey(x => x.LeadSourceId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+        }
+
+        public void SetUserDb(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
         }
     }
 }

@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.MasterDTOs;
+using ServiceCRM.Models;
 using ServiceCRM.Services.MasterServices;
 using System.ComponentModel;
-using ServiceCRM.Common;
 
 namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     [Route("api/masters")]
     public class MastersController: ControllerBase
     {

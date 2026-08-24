@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.AnalyticsDTOs;
 using ServiceCRM.Services.AnalyticsServices;
 using System.ComponentModel;
@@ -6,6 +8,7 @@ using System.ComponentModel;
 namespace ServiceCRM.Controllers.Analytics
 {
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     [Route("api/analytics")]
     public class AnalyticsController : ControllerBase
     {

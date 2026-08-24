@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Models.Lead;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.LeadSourceDTOs;
+using ServiceCRM.Models.Lead;
 using ServiceCRM.Services.LeadSourceService;
 using System.ComponentModel;
-using ServiceCRM.Common;
 
 namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     [Route("api/lead-sources")]
     public class LeadSourceController: ControllerBase
     {

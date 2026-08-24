@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ServiceCRM.Models;
-using ServiceCRM.DTOs.ClientDTOs;
-using System.ComponentModel;
-
-using ServiceCRM.Services.ClientServices;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServiceCRM.Common;
+using ServiceCRM.DTOs.ClientDTOs;
+using ServiceCRM.Services.ClientServices;
+using System.ComponentModel;
 
 namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     [Route("api/clients")]
     public class ClientsController : ControllerBase
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServiceCRM.Common;
 using ServiceCRM.DTOs.PaymentDTOs;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 namespace ServiceCRM.Controllers.Base
 {
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     [Route("api/requests")]
     public class ServiceRequestsController : ControllerBase
     {
@@ -66,6 +68,16 @@ namespace ServiceCRM.Controllers.Base
             CancellationToken ct = default)
         {
             return Ok(await _serviceRequestService.UpdateServiceRequestAsync(id, dto, ct));
+        }
+
+        [HttpPatch("{id}/status")]
+        [EndpointSummary("Обновить статус заявки по {id}")]
+        public async Task<ActionResult<ServiceRequestResponseDto>> UpdateStatusServiceRequest(
+            [FromRoute][Description("Id обновляемой заявки")]int id,
+            [FromBody][Description("Dto обновляемого статуса заявки")]UpdateStatusServiceRequestDto dto,
+            CancellationToken ct)
+        {
+            return Ok(await _serviceRequestService.UpdateStatusServiceRequestAsync(id, dto, ct));
         }
 
         [HttpPut("{id}/complete")]

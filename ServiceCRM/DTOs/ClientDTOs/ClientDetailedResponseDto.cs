@@ -18,7 +18,7 @@ namespace ServiceCRM.DTOs.ClientDTOs
         public required string City { get; set; }
 
         [Description("Дата создания клиента")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         [Description("Список всех заявок")]
         public List<ServiceRequestResponseDto> Requests { get; set; } = new List<ServiceRequestResponseDto>();

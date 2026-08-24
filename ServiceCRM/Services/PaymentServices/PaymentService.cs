@@ -25,6 +25,9 @@ namespace ServiceCRM.Services.PaymentServices
             if (serviceRequest.Status == RequestStatus.Cancelled)
                 throw new BadRequestException("Нельзя внести оплату по отмененной заявке");
 
+            if (serviceRequest.TotalPrice <= 0)
+                throw new BadRequestException("Стоимость заявки еще не выставлена");
+
             bool alreadyPaid = await _context.Payments.AnyAsync(p => p.ServiceRequestId == requestId, ct);
 
             if (alreadyPaid)

@@ -21,7 +21,7 @@ namespace ServiceCRM.DTOs.LeadSourceDTOs
         public bool IsActive { get; set; } = true;
 
         [Description("Дата создания источника")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         [Description("Рекламные компании")]
         public List<AdExpenseResponseDto> AdExpenses { get; set; } = [];

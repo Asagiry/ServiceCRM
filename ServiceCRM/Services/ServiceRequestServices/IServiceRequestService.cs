@@ -28,6 +28,11 @@ namespace ServiceCRM.Services.ServiceRequestServices
             UpdateServiceRequestDto dto,
             CancellationToken ct = default);
 
+        public Task<ServiceRequestResponseDto> UpdateStatusServiceRequestAsync(
+            int id,
+            UpdateStatusServiceRequestDto dto,
+            CancellationToken ct = default);
+
         public Task<ServiceRequestResponseDto> CompleteServiceRequestAsync(
             int id, 
             CompleteServiceRequestDto dto,
@@ -36,7 +41,6 @@ namespace ServiceCRM.Services.ServiceRequestServices
         public Task DeleteServiceRequestAsync(
             int id,
             CancellationToken ct = default);
-
 
     }
 }

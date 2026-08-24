@@ -12,7 +12,7 @@ namespace ServiceCRM.DTOs.LeadSourceDTOs
         public decimal Amount { get; set; }
 
         [Description("Дата списания / пополнения")]
-        public DateTime ExpenseStartDate { get; set; } = DateTime.UtcNow;
+        public DateTime ExpenseStartDate { get; set; }
 
         [Description("Id источника лидов")]
         public int LeadSourceId { get; set; }

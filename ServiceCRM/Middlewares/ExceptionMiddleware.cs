@@ -1,10 +1,17 @@
 ﻿using ServiceCRM.Exceptions;
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ServiceCRM.Middlewares
 {
     public class ExceptionMiddleware
     {
+        private static readonly JsonSerializerOptions JsonOpts = new() 
+        { 
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull 
+        };
+
         RequestDelegate _next;
         ILogger<ExceptionMiddleware> _logger;
         IHostEnvironment _env;
@@ -50,8 +57,8 @@ namespace ServiceCRM.Middlewares
                     error = _env.IsDevelopment() ? ex.Message : null,
                     stackTrace = _env.IsDevelopment() ? ex.StackTrace : null
                 };
-
-                await context.Response.WriteAsJsonAsync(response);
+        
+                await context.Response.WriteAsJsonAsync(response,JsonOpts);
             }
         }
 

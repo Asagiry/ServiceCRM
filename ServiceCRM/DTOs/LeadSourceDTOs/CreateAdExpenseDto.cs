@@ -9,6 +9,6 @@ namespace ServiceCRM.DTOs.LeadSourceDTOs
 
 
         [Description("Дата списания / пополнения")]
-        public DateTime ExpenseStartDate { get; set; } = DateTime.UtcNow;
+        public DateTime ExpenseStartDate { get; set; }
     }
 }

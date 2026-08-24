@@ -1,6 +1,4 @@
-﻿
-using ServiceCRM.Models.Request;
-using System.ComponentModel;
+﻿using ServiceCRM.Models.Request;
 
 namespace ServiceCRM.DTOs.ServiceRequestDTOs
 {
