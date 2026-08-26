@@ -42,8 +42,10 @@ namespace ServiceCRM.Services.ServiceRequestServices
 
             if (dateTime != null)
             {
-                DateTime startOfDay = dateTime.Value.Date;            
-                DateTime startOfNextDay = startOfDay.AddDays(1); 
+                // CreatedAt хранится в UTC (timestamptz) — границы дня тоже должны быть UTC,
+                // иначе Npgsql падает: "Cannot write DateTime with Kind=Unspecified"
+                DateTime startOfDay = DateTime.SpecifyKind(dateTime.Value.Date, DateTimeKind.Utc);
+                DateTime startOfNextDay = startOfDay.AddDays(1);
                 query = query.Where(x => x.CreatedAt >= startOfDay && x.CreatedAt < startOfNextDay);
             }
 
@@ -161,7 +163,8 @@ namespace ServiceCRM.Services.ServiceRequestServices
         private static readonly Dictionary<RequestStatus, RequestStatus[]> AllowedTransitions =
         new()
         {
-            [RequestStatus.New] = [RequestStatus.InProgress, RequestStatus.Cancelled],
+            [RequestStatus.New]        = [RequestStatus.Assigned, RequestStatus.Cancelled],
+            [RequestStatus.Assigned]   = [RequestStatus.InProgress, RequestStatus.Completed, RequestStatus.Cancelled],
             [RequestStatus.InProgress] = [RequestStatus.Completed, RequestStatus.Cancelled],
         };
 

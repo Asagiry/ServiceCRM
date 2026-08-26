@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Models.Auth;
 using ServiceCRM.Middlewares;
 
@@ -29,6 +30,9 @@ namespace ServiceCRM.Extensions
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+                // Автоматически применяем все миграции при старте контейнера
+                context.Database.Migrate();
 
                 if (!context.Users.Any())
                 {

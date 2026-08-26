@@ -1,4 +1,4 @@
-﻿using ServiceCRM.Models.Request;
+using ServiceCRM.Models.Request;
 using System.ComponentModel;
 
 namespace ServiceCRM.DTOs.ServiceRequestDTOs
@@ -43,6 +43,9 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
         public int? MasterId { get; set; }
         [Description("Мастер")]
         public string? MasterFullName { get; set; }
+
+        [Description("Id источника заявки")]
+        public int LeadSourceId { get; set; }
 
         [Description("Источник заявки")]
         public required string LeadSourceName { get; set; }

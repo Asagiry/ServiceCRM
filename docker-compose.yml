@@ -1,4 +1,4 @@
-services:
+﻿services:
   postgres:
     image: postgres:16-alpine
     container_name: ServiceCRM-postgres
@@ -18,6 +18,38 @@ services:
     restart: always
     ports:
       - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ServiceCRM-backend
+    restart: always
+    ports:
+      - "5041:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-ServiceCRM};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
+      - ConnectionStrings__Redis=redis:6379
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER:-ServiceCRM}
+      - Jwt__Audience=${JWT_AUDIENCE:-ServiceCRM}
+      - Jwt__ExpireHours=${JWT_EXPIRE_HOURS:-8}
+      - Admin__Username=${ADMIN_USERNAME:-admin}
+      - Admin__Password=${ADMIN_PASSWORD:-AdminPassword2026!}
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ServiceCRM-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

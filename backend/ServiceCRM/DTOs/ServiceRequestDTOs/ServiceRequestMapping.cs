@@ -1,4 +1,4 @@
-﻿using ServiceCRM.Models.Request;
+using ServiceCRM.Models.Request;
 
 namespace ServiceCRM.DTOs.ServiceRequestDTOs
 {
@@ -25,6 +25,7 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
             MasterId = r.MasterId,
             MasterFullName = r.Master?.Fullname,
 
+            LeadSourceId = r.LeadSourceId,
             LeadSourceName = r.LeadSource?.Name ?? "",
             CreatedAt = r.CreatedAt
         };

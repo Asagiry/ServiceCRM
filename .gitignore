@@ -1,29 +1,27 @@
-## .NET Core / Visual Studio
-[Bb]in/
-[Oo]bj/
-.vs/
-*.user
-*.userosscache
-*.sln.docstates
-*.suo
+﻿## Backend / .NET
+**/[Bb]in/
+**/[Oo]bj/
+**/.vs/
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/*.suo
 
-## Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-build/
-bld/
+## Frontend / Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
 
-## Logs
-*.log
-_ReSharper*/
-
-## OS generated
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-.DS_Store
-
+## Secrets & Env
 .env
+**/*.env.local
+**/*.env.*.local
+
+## OS & Media
+*.mp4
+*.avi
+.DS_Store
+Thumbs.db
