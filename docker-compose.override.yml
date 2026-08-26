@@ -1,0 +1,9 @@
+﻿services:
+  backend:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  frontend:
+    build:
+      args:
+        - VITE_API_URL=http://localhost:5041
