@@ -79,7 +79,8 @@ namespace ServiceCRM.Services.LeadSourceService
             LeadSource leadSource = await _context.LeadSources.FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.LeadSourceNotFound(id));
 
-            _context.LeadSources.Remove(leadSource);
+            leadSource.IsDeleted = true;
+            leadSource.DeletedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(ct);
         }

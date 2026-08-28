@@ -1,4 +1,5 @@
 ﻿using ServiceCRM.DTOs.LeadSourceDTOs;
+using ServiceCRM.Models.Common;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
@@ -25,6 +26,7 @@ namespace ServiceCRM.Models.Lead
 
         [Description("Дата списания / пополнения")]
         public DateTime ExpenseStartDate { get; set; } = DateTime.UtcNow;
+
 
         public AdExpense() { }
 

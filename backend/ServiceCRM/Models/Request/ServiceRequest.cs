@@ -1,12 +1,13 @@
-﻿using ServiceCRM.Models;
+﻿using ServiceCRM.DTOs.ServiceRequestDTOs;
+using ServiceCRM.Models;
+using ServiceCRM.Models.Common;
 using ServiceCRM.Models.Lead;
-using ServiceCRM.DTOs.ServiceRequestDTOs;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceCRM.Models.Request
 {
-    public class ServiceRequest
+    public class ServiceRequest : ISoftDeletable
     {
         #region Nav
         public Client? Client { get; set; }
@@ -57,6 +58,10 @@ namespace ServiceCRM.Models.Request
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
+
         public ServiceRequest() { }
 
         [SetsRequiredMembers]
@@ -89,7 +94,12 @@ namespace ServiceCRM.Models.Request
             Status = RequestStatus.Completed;
             TotalPrice = dto.TotalPrice;
             DirectExpenses = dto.DirectExpenses;
-            MasterPayout = dto.MasterPayout;
+
+     
+            var margin = Math.Max(0, TotalPrice - DirectExpenses);
+            var percent = Master?.CommissionPercent ?? 0;
+
+            MasterPayout = dto.MasterPayout ?? Math.Round(margin * (percent / 100m), 2);
         }
     }
 }

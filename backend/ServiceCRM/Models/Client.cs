@@ -1,9 +1,10 @@
-﻿using ServiceCRM.Models.Request;
+﻿using ServiceCRM.Models.Common;
+using ServiceCRM.Models.Request;
 using System.ComponentModel;
 
 namespace ServiceCRM.Models
 {
-    public class Client
+    public class Client : ISoftDeletable
     {
         [Description("Id клиента")]
         public int Id { get; set; }
@@ -22,6 +23,9 @@ namespace ServiceCRM.Models
 
         [Description("Список всех заявок")]
         public List<ServiceRequest> Requests { get; set; } = new List<ServiceRequest>();
+
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         public Client()
         {

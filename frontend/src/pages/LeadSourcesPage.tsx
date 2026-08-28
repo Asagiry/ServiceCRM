@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   ApiError,
   createAdExpense,
@@ -27,6 +28,9 @@ import {
 
 export function LeadSourcesPage() {
   const toast = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchName = searchParams.get('name')
+  const searchId = searchParams.get('id')
 
   const [items, setItems] = useState<LeadSource[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -42,6 +46,37 @@ export function LeadSourcesPage() {
   const [deletingExpense, setDeletingExpense] = useState<AdExpense | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Автоматическое открытие модалки источника, если перешли по ссылке из аналитики
+  useEffect(() => {
+    if (!searchId && !searchName) return
+    if (searchId) {
+      getLeadSource(Number(searchId))
+        .then((src) => setViewing(src))
+        .catch(() => {})
+    } else if (searchName) {
+      if (items.length > 0) {
+        const match = items.find((x) => x.name.toLowerCase() === searchName.toLowerCase())
+        if (match) {
+          setViewing(match)
+          return
+        }
+      }
+      getLeadSources(1, 100)
+        .then((res) => {
+          const m = res.items.find((x) => x.name.toLowerCase() === searchName.toLowerCase())
+          if (m) setViewing(m)
+        })
+        .catch(() => {})
+    }
+  }, [items, searchId, searchName])
+
+  const closeViewing = () => {
+    setViewing(null)
+    if (searchId || searchName) {
+      setSearchParams({})
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -350,9 +385,9 @@ export function LeadSourcesPage() {
       {viewing && (
         <LeadSourceDetailsModal
           source={viewing}
-          onClose={() => setViewing(null)}
+          onClose={closeViewing}
           onEdit={(s) => {
-            setViewing(null)
+            closeViewing()
             setFormSource(s)
           }}
           onAddExpense={(s) => {

@@ -99,7 +99,9 @@ namespace ServiceCRM.Services.ClientServices
             Client toDelete = await _context.Clients.FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.ClientNotFound(id));
 
-            _context.Clients.Remove(toDelete);
+            toDelete.IsDeleted = true;
+            toDelete.DeletedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync(ct);
         }
     }

@@ -11,6 +11,6 @@ namespace ServiceCRM.DTOs.ServiceRequestDTOs
         public decimal DirectExpenses { get; set; }
 
         [Description("Выплата мастеру")]
-        public decimal MasterPayout { get; set; }
+        public decimal? MasterPayout { get; set; }
     }
 }

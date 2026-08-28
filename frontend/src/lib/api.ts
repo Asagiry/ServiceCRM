@@ -178,7 +178,7 @@ export function updateRequestStatus(id: number, status: RequestStatus): Promise<
 
 export function completeRequest(
   id: number,
-  dto: { totalPrice: number; directExpenses: number; masterPayout: number },
+  dto: { totalPrice: number; directExpenses: number; masterPayout?: number | null },
 ): Promise<ServiceRequest> {
   return request<ServiceRequest>(`/api/requests/${id}/complete`, { method: 'PUT', body: dto })
 }

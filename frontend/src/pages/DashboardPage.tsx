@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApiError, createRequest, getDashboardToday, getRequests } from '../lib/api'
 import type { DashboardToday, ServiceRequest } from '../lib/types'
-import { formatDate, formatMoney } from '../lib/format'
+import { formatMoney } from '../lib/format'
 import { StatusBadge } from '../components/StatusBadge'
 import { CreateRequestModal } from '../components/CreateRequestModal'
 import { useToast } from '../components/Toasts'
@@ -89,7 +89,6 @@ export function DashboardPage() {
       <div className="page-head">
         <div>
           <h1 className="page-title">Главная</h1>
-          <div className="page-subtitle">Заявки, мастера и основные показатели за сегодня.</div>
         </div>
         <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
           <IconPlus size={16} />
@@ -101,22 +100,18 @@ export function DashboardPage() {
         <div className="card stat-card">
           <span className="stat-label">Неназначенные</span>
           <span className="stat-value mono-num">{today.unassignedTodayCount}</span>
-          <span className="stat-sub">Созданные сегодня без мастера</span>
         </div>
         <div className="card stat-card">
           <span className="stat-label">Выезды сегодня</span>
           <span className="stat-value mono-num">{today.scheduledTodayCount}</span>
-          <span className="stat-sub">Запланировано на сегодня</span>
         </div>
         <div className="card stat-card">
           <span className="stat-label">В работе сейчас</span>
           <span className="stat-value mono-num">{today.inProgressNow}</span>
-          <span className="stat-sub">Мастер назначен или идёт ремонт</span>
         </div>
         <div className="card stat-card">
           <span className="stat-label">Выручка сегодня</span>
           <span className="stat-value mono-num">{formatMoney(today.revenueToday)}</span>
-          <span className="stat-sub">{formatDate(new Date().toISOString())}</span>
         </div>
       </div>
 
@@ -124,23 +119,18 @@ export function DashboardPage() {
         <div className="card stat-card">
           <span className="stat-label">Расходы сегодня</span>
           <span className="stat-value mono-num">{formatMoney(today.expensesToday + today.masterPayoutsToday)}</span>
-          <span className="stat-sub">
-            ремонт {formatMoney(today.expensesToday)} · мастерам {formatMoney(today.masterPayoutsToday)}
-          </span>
         </div>
         <div className="card stat-card">
           <span className="stat-label">Чистая прибыль владельца</span>
           <span className="stat-value mono-num" style={{ color: today.ownerProfitToday >= 0 ? 'var(--green)' : 'var(--red)' }}>
             {formatMoney(today.ownerProfitToday)}
           </span>
-          <span className="stat-sub">Выручка минус расходы и выплаты</span>
         </div>
       </div>
 
       <div className="card">
         <div className="panel" style={{ paddingBottom: 12 }}>
           <div className="section-card-title">Заявки на сегодня</div>
-          <div className="section-card-sub">Созданные сегодня — самые свежие сверху</div>
         </div>
 
         {recent.length === 0 ? (

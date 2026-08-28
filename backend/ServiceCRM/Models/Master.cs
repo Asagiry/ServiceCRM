@@ -1,11 +1,12 @@
 ﻿using ServiceCRM.DTOs.MasterDTOs;
+using ServiceCRM.Models.Common;
 using ServiceCRM.Models.Request;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceCRM.Models
 {
-    public class Master
+    public class Master : ISoftDeletable
     {
         [Description("Id мастера")]
         public int Id { get; set; }
@@ -25,6 +26,11 @@ namespace ServiceCRM.Models
         public decimal CommissionPercent { get; set; }
         [Description("Активен ли мастер(мб отпуск,больничный, отдыхает")]
         public bool IsActive { get; set; }
+
+
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
 
         public Master() { }
 

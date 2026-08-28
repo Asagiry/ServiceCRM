@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ServiceCRM.Models;
 using ServiceCRM.Models.Auth;
 using ServiceCRM.Models.Lead;
@@ -34,6 +34,13 @@ namespace ServiceCRM
             SetLeadSourceDb(modelBuilder);
 
             SetUserDb(modelBuilder);
+
+            modelBuilder.Entity<Client>().HasQueryFilter(c => !c.IsDeleted);
+            modelBuilder.Entity<ServiceRequest>().HasQueryFilter(r => !r.IsDeleted);
+            modelBuilder.Entity<Master>().HasQueryFilter(m => !m.IsDeleted);
+            modelBuilder.Entity<LeadSource>().HasQueryFilter(s => !s.IsDeleted);
+            modelBuilder.Entity<Payment>().HasQueryFilter(p => !p.ServiceRequest!.IsDeleted);
+            modelBuilder.Entity<AdExpense>().HasQueryFilter(a => !a.LeadSource!.IsDeleted);
         }
 
         public void SetServiceRequestDb(ModelBuilder modelBuilder)

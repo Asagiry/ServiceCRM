@@ -95,7 +95,8 @@ namespace ServiceCRM.Services.MasterServices
             Master master = await _context.Masters.FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.MasterNotFound(id));
 
-            _context.Masters.Remove(master);
+            master.IsDeleted = true;
+            master.DeletedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(ct);
         }

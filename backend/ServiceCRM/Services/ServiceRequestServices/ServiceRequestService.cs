@@ -1,12 +1,13 @@
 
 using Microsoft.EntityFrameworkCore;
+using ServiceCRM.Common;
 using ServiceCRM.DTOs.ServiceRequestDTOs;
 using ServiceCRM.Exceptions;
-using ServiceCRM.Common;
+using ServiceCRM.Models;
 using ServiceCRM.Models.Request;
+using StackExchange.Redis;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using StackExchange.Redis;
 
 namespace ServiceCRM.Services.ServiceRequestServices
 {
@@ -132,7 +133,9 @@ namespace ServiceCRM.Services.ServiceRequestServices
             CompleteServiceRequestDto dto,
             CancellationToken ct = default)
         {
-            ServiceRequest serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
+            ServiceRequest serviceRequest = await _context.ServiceRequests
+                .Include(x => x.Master)
+                .FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
 
             EnsureTransitionAllowed(serviceRequest.Status, RequestStatus.Completed);
@@ -153,7 +156,8 @@ namespace ServiceCRM.Services.ServiceRequestServices
             ServiceRequest? serviceRequest = await _context.ServiceRequests.FirstOrDefaultAsync(x => x.Id == id, ct)
                 ?? throw new NotFoundException(ErrorMessages.ServiceRequestNotFound(id));
 
-            _context.ServiceRequests.Remove(serviceRequest);
+            serviceRequest.IsDeleted = true;
+            serviceRequest.DeletedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(ct);
         }

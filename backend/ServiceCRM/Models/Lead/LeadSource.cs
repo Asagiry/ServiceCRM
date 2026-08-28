@@ -1,11 +1,12 @@
 ﻿using ServiceCRM.DTOs.LeadSourceDTOs;
+using ServiceCRM.Models.Common;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceCRM.Models.Lead
 {
     [Description("Источник лидов")]
-    public class LeadSource
+    public class LeadSource : ISoftDeletable
     {
         [Description("Id лида")]
         public int Id { get; set; }
@@ -28,6 +29,9 @@ namespace ServiceCRM.Models.Lead
         [Description("Дата создания источника")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         public LeadSource() { }
 

@@ -8,6 +8,7 @@ interface DonutSegment {
   key: string
   label: string
   value: number
+  chartValue: number
   color: string
   share: number
 }
@@ -15,28 +16,47 @@ interface DonutSegment {
 export function FinancialDonutChart({ summary }: { summary: AnalyticsSummary }) {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
 
-  const total = Math.max(
-    1,
-    summary.revenue > 0
-      ? summary.revenue
-      : Math.max(0, summary.ownerProfit) + summary.masterPayouts + summary.directExpenses + summary.adExpenses,
-  )
+  const isProfitPositive = summary.ownerProfit >= 0
 
-  const rawSegments: Array<{ key: string; label: string; value: number; color: string }> = [
-    { key: 'profit', label: 'Прибыль владельца', value: Math.max(0, summary.ownerProfit), color: '#10b981' },
-    { key: 'masters', label: 'Выплаты мастерам', value: summary.masterPayouts, color: '#6366f1' },
-    { key: 'direct', label: 'Запчасти и материалы', value: summary.directExpenses, color: '#f59e0b' },
-    { key: 'ads', label: 'Расходы на рекламу', value: summary.adExpenses, color: '#ec4899' },
+  const rawSegments = [
+    {
+      key: 'revenue',
+      label: 'Выручка',
+      value: summary.revenue,
+      chartValue: summary.revenue,
+      color: '#10b981',
+    },
+    {
+      key: 'masters',
+      label: 'Выплаты мастерам',
+      value: summary.masterPayouts,
+      chartValue: summary.masterPayouts,
+      color: '#6366f1',
+    },
+    {
+      key: 'direct',
+      label: 'Запчасти и материалы',
+      value: summary.directExpenses,
+      chartValue: summary.directExpenses,
+      color: '#f59e0b',
+    },
+    {
+      key: 'ads',
+      label: 'Расходы на рекламу',
+      value: summary.adExpenses,
+      chartValue: summary.adExpenses,
+      color: '#ec4899',
+    },
   ]
 
-  const segmentsSum = rawSegments.reduce((acc, s) => acc + s.value, 0) || total
+  const chartSum = rawSegments.reduce((acc, s) => acc + s.chartValue, 0) || 1
   const segments: DonutSegment[] = rawSegments.map((s) => ({
     ...s,
-    share: Math.round((s.value / segmentsSum) * 100),
+    share: s.chartValue > 0 ? Math.round((s.chartValue / chartSum) * 100) : 0,
   }))
 
-  const radius = 64
-  const strokeWidth = 22
+  const radius = 90
+  const strokeWidth = 24
   const circumference = 2 * Math.PI * radius
 
   let accumulatedPercent = 0
@@ -46,16 +66,17 @@ export function FinancialDonutChart({ summary }: { summary: AnalyticsSummary }) 
   return (
     <div className="chart-donut-wrap">
       <div className="donut-svg-container">
-        <svg viewBox="0 0 180 180" className="donut-svg">
+        <svg viewBox="0 0 240 240" className="donut-svg">
           <circle
-            cx="90"
-            cy="90"
+            cx="120"
+            cy="120"
             r={radius}
             fill="none"
             stroke="var(--surface-2)"
             strokeWidth={strokeWidth}
           />
           {segments.map((seg) => {
+            if (seg.share <= 0) return null
             const strokeDasharray = `${(seg.share / 100) * circumference} ${circumference}`
             const strokeDashoffset = -((accumulatedPercent / 100) * circumference)
             accumulatedPercent += seg.share
@@ -64,19 +85,19 @@ export function FinancialDonutChart({ summary }: { summary: AnalyticsSummary }) 
             return (
               <circle
                 key={seg.key}
-                cx="90"
-                cy="90"
+                cx="120"
+                cy="120"
                 r={radius}
                 fill="none"
                 stroke={seg.color}
-                strokeWidth={isHovered ? strokeWidth + 4 : strokeWidth}
+                strokeWidth={isHovered ? strokeWidth + 6 : strokeWidth}
                 strokeDasharray={strokeDasharray}
                 strokeDashoffset={strokeDashoffset}
-                transform="rotate(-90 90 90)"
+                transform="rotate(-90 120 120)"
                 style={{
                   transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
                   cursor: 'pointer',
-                  opacity: hoveredKey && !isHovered ? 0.45 : 1,
+                  opacity: hoveredKey && !isHovered ? 0.4 : 1,
                 }}
                 onMouseEnter={() => setHoveredKey(seg.key)}
                 onMouseLeave={() => setHoveredKey(null)}
@@ -86,11 +107,21 @@ export function FinancialDonutChart({ summary }: { summary: AnalyticsSummary }) 
         </svg>
 
         <div className="donut-center-label">
-          <div className="center-caption">{activeSegment ? activeSegment.label : 'Выручка'}</div>
-          <div className="center-value mono-num">
-            {activeSegment ? formatMoney(activeSegment.value) : formatMoney(summary.revenue)}
+          <div className="center-caption">
+            {activeSegment ? activeSegment.label : 'Прибыль владельца'}
           </div>
-          {activeSegment && <div className="center-sub mono-num">{activeSegment.share}% от суммы</div>}
+          <div
+            className="center-value mono-num"
+            style={{
+              color: activeSegment
+                ? undefined
+                : isProfitPositive
+                  ? '#10b981'
+                  : '#ef4444',
+            }}
+          >
+            {activeSegment ? formatMoney(activeSegment.value) : formatMoney(summary.ownerProfit)}
+          </div>
         </div>
       </div>
 

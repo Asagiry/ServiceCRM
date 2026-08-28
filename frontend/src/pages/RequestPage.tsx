@@ -3,22 +3,24 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ApiError,
   completeRequest,
+  createMaster,
   createPayment,
   deleteRequest,
   getActiveMasters,
   getAllLeadSources,
+  getMaster,
   getPayment,
   getRequest,
   updateRequest,
   updateRequestStatus,
 } from '../lib/api'
-import type { LeadSource, Master, PaymentMethod, RequestStatus, ServiceRequest } from '../lib/types'
+import type { LeadSource, Master, MasterDetailed, PaymentMethod, RequestStatus, ServiceRequest } from '../lib/types'
 import {
   ALLOWED_TRANSITIONS,
   PAYMENT_METHOD_LABELS,
   STATUS_LABELS,
 } from '../lib/types'
-import { formatDate, formatDateTime, formatMoney } from '../lib/format'
+import { formatDate, formatDateTime, formatMoney, isValidPhone, normalizePhone } from '../lib/format'
 import { StatusBadge } from '../components/StatusBadge'
 import { Modal } from '../components/Modal'
 import { ConfirmModal } from '../components/ConfirmModal'
@@ -33,6 +35,7 @@ import {
   IconMegaphone,
   IconPencil,
   IconPhone,
+  IconPlus,
   IconTrash,
   IconUser,
 } from '../components/icons'
@@ -343,44 +346,34 @@ export function RequestPage() {
             <Stepper status={request.status} />
           </section>
 
-          <section className="card panel">
-            <h2 className="panel-title">Действия</h2>
-            <div className="actions-stack">
-              {!isTerminal && (
-                <>
-                  {(canTransitionTo('Assigned') || request.status === 'Assigned') && (
-                    <button className="btn btn-primary btn-block" disabled={busy} onClick={() => setModal('assign')}>
-                      {request.masterId ? 'Сменить мастера' : 'Назначить мастера'}
+          {!isTerminal && (
+            <section className="card panel">
+              <h2 className="panel-title">Действия</h2>
+              <div className="actions-stack">
+                {(canTransitionTo('Assigned') || request.status === 'Assigned') && (
+                  <button className="btn btn-primary btn-block" disabled={busy} onClick={() => setModal('assign')}>
+                    {request.masterId ? 'Сменить мастера' : 'Назначить мастера'}
+                  </button>
+                )}
+
+                {canTransitionTo('Completed') && (
+                  <button className="btn btn-success btn-block" disabled={busy} onClick={() => setModal('complete')}>
+                    <IconCheck size={16} />
+                    Завершить с финансами
+                  </button>
+                )}
+
+                {canTransitionTo('Cancelled') && (
+                  <>
+                    <hr className="divider" style={{ margin: '6px 0' }} />
+                    <button className="btn btn-danger btn-block" disabled={busy} onClick={() => setModal('cancel')}>
+                      Отменить заявку
                     </button>
-                  )}
-
-                  {canTransitionTo('Completed') && (
-                    <button className="btn btn-success btn-block" disabled={busy} onClick={() => setModal('complete')}>
-                      <IconCheck size={16} />
-                      Завершить с финансами
-                    </button>
-                  )}
-
-                  {canTransitionTo('Cancelled') && (
-                    <>
-                      <hr className="divider" style={{ margin: '6px 0' }} />
-                      <button className="btn btn-danger btn-block" disabled={busy} onClick={() => setModal('cancel')}>
-                        Отменить заявку
-                      </button>
-                    </>
-                  )}
-                </>
-              )}
-
-              {isTerminal && (
-                <div className="faint" style={{ textAlign: 'center', padding: '8px 0', lineHeight: 1.6 }}>
-                  Статус «{STATUS_LABELS[request.status]}» — терминальный.
-                  <br />
-                  Изменения недоступны.
-                </div>
-              )}
-            </div>
-          </section>
+                  </>
+                )}
+              </div>
+            </section>
+          )}
         </div>
       </div>
 
@@ -416,6 +409,7 @@ export function RequestPage() {
 
       {modal === 'complete' && (
         <CompleteModal
+          request={request}
           busy={busy}
           onClose={() => setModal(null)}
           onSubmit={(dto) =>
@@ -561,22 +555,51 @@ function AssignMasterModal({
   onClose: () => void
   onSave: (masterId: number) => void
 }) {
+  const toast = useToast()
   const [masters, setMasters] = useState<Master[] | null>(null)
   const [selected, setSelected] = useState<number | ''>(request.masterId ?? '')
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [creatingMaster, setCreatingMaster] = useState(false)
 
-  useEffect(() => {
-    let alive = true
-    getActiveMasters()
-      .then((m) => alive && setMasters(m))
-      .catch((e) => alive && setLoadError(e instanceof ApiError ? e.message : 'Не удалось загрузить мастеров'))
-    return () => {
-      alive = false
+  const reloadMasters = useCallback(async () => {
+    try {
+      const m = await getActiveMasters()
+      setMasters(m)
+      return m
+    } catch (e) {
+      setLoadError(e instanceof ApiError ? e.message : 'Не удалось загрузить мастеров')
+      return []
     }
   }, [])
 
+  useEffect(() => {
+    void reloadMasters()
+  }, [reloadMasters])
+
+  const handleMasterCreated = async (newMaster: Master) => {
+    toast('success', `Мастер «${newMaster.fullname}» добавлен и выбран`)
+    setCreatingMaster(false)
+    const list = await reloadMasters()
+    if (list.some((m) => m.id === newMaster.id)) {
+      setSelected(newMaster.id)
+    }
+  }
+
+  if (creatingMaster) {
+    return (
+      <QuickCreateMasterModal
+        onClose={() => setCreatingMaster(false)}
+        onSuccess={handleMasterCreated}
+      />
+    )
+  }
+
   return (
-    <Modal title="Назначение мастера" subtitle={`Заявка #${request.id} · ${request.equipmentType}`} onClose={onClose}>
+    <Modal
+      title="Назначение мастера"
+      subtitle={request.equipmentType ? `Заявка · ${request.equipmentType}` : 'Назначение исполнителя'}
+      onClose={onClose}
+    >
       {masters === null && !loadError && (
         <div className="actions-stack">
           {[0, 1, 2].map((i) => (
@@ -588,25 +611,52 @@ function AssignMasterModal({
       {loadError && (
         <div className="confirm-warning">
           <IconAlertTriangle size={17} />
-          {loadError}
+          <span>{loadError}</span>
         </div>
       )}
 
       {masters && masters.length === 0 && (
-        <div className="empty-state" style={{ padding: '30px 10px' }}>
-          <h3>Нет активных мастеров</h3>
-          <p>Добавьте мастера через API /api/masters.</p>
+        <div className="empty-state" style={{ padding: '24px 10px', textAlign: 'center' }}>
+          <div className="icon-wrap" style={{ width: 44, height: 44, margin: '0 auto 12px' }}>
+            <IconUser size={22} />
+          </div>
+          <h3 style={{ fontSize: 16, marginBottom: 6 }}>Нет активных мастеров</h3>
+          <p style={{ maxWidth: 340, margin: '0 auto 16px', color: 'var(--text-faint)' }}>
+            В системе пока нет активных мастеров. Добавьте мастера прямо сейчас, чтобы сразу назначить его на заявку.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setCreatingMaster(true)}
+          >
+            <IconPlus size={14} />
+            Создать мастера
+          </button>
         </div>
       )}
 
       {masters && masters.length > 0 && (
         <div className="field">
-          <label className="label" htmlFor="assign-master">Выберите мастера</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <label className="label" htmlFor="assign-master" style={{ margin: 0 }}>
+              Выберите мастера
+            </label>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ padding: '3px 8px', fontSize: 12, height: 'auto', gap: 4 }}
+              onClick={() => setCreatingMaster(true)}
+            >
+              <IconPlus size={12} />
+              Новый мастер
+            </button>
+          </div>
           <select
             id="assign-master"
             className="select"
             value={selected}
             onChange={(e) => setSelected(e.target.value === '' ? '' : Number(e.target.value))}
+            autoFocus
           >
             <option value="">— не назначен —</option>
             {masters.map((m) => (
@@ -617,13 +667,13 @@ function AssignMasterModal({
           </select>
           <span className="hint">
             {request.status === 'New'
-              ? 'После назначения заявка перейдёт в статус «Назначена».'
+              ? 'После назначения заявка автоматически перейдёт в статус «Назначена».'
               : 'Статус заявки сохранится без изменений.'}
           </span>
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
         <button className="btn btn-ghost" onClick={onClose} disabled={busy}>
           Отмена
         </button>
@@ -639,25 +689,217 @@ function AssignMasterModal({
   )
 }
 
+/* ================= Быстрое создание мастера прямо из заявки ================= */
+
+function QuickCreateMasterModal({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void
+  onSuccess: (master: Master) => void
+}) {
+  const [fullname, setFullname] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [telegram, setTelegram] = useState('')
+  const [city, setCity] = useState('')
+  const [specializationRaw, setSpecializationRaw] = useState('')
+  const [commissionPercent, setCommissionPercent] = useState('10')
+  const [isActive, setIsActive] = useState(true)
+
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  const validate = () => {
+    const e: Record<string, string> = {}
+    if (fullname.trim().length < 3 || fullname.trim().length > 100) e.fullname = 'Имя: от 3 до 100 символов'
+    if (!isValidPhone(phoneNumber)) e.phoneNumber = 'Введите номер (например: 89001234567 или +79001234567)'
+    if (!telegram.trim().startsWith('@') || telegram.trim().length < 2) e.telegram = 'Telegram должен начинаться с @'
+    if (city.trim().length < 2 || city.trim().length > 25) e.city = 'Город: от 2 до 25 символов'
+    if (specializationRaw.split(',').filter((s) => s.trim()).length === 0) {
+      e.specialization = 'Добавьте хотя бы одну специализацию'
+    }
+    const pct = Number(commissionPercent)
+    if (Number.isNaN(pct) || pct < 0 || pct > 100) e.commissionPercent = 'Комиссия: от 0 до 100'
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  const submit = async () => {
+    setServerError(null)
+    if (!validate()) return
+    setSaving(true)
+    try {
+      const created = await createMaster({
+        fullname: fullname.trim(),
+        phoneNumber: normalizePhone(phoneNumber),
+        telegram: telegram.trim(),
+        city: city.trim(),
+        specialization: specializationRaw.split(',').map((s) => s.trim()).filter(Boolean),
+        commissionPercent: Number(commissionPercent),
+        isActive,
+      })
+      onSuccess(created)
+    } catch (err) {
+      setServerError(err instanceof ApiError ? err.message : 'Не удалось создать мастера')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal
+      title="Новый мастер"
+      subtitle="Быстрое создание мастера для назначения на заявку"
+      onClose={onClose}
+      footer={
+        <>
+          <button className="btn btn-ghost" onClick={onClose} disabled={saving}>
+            Назад
+          </button>
+          <button className="btn btn-primary" onClick={() => void submit()} disabled={saving}>
+            {saving ? 'Создаём…' : 'Создать и выбрать'}
+          </button>
+        </>
+      }
+    >
+      {serverError && (
+        <div className="login-error" role="alert" style={{ marginBottom: 14 }}>
+          ⚠ <span>{serverError}</span>
+        </div>
+      )}
+      <div className="form-grid">
+        <div className="field span-2">
+          <label className="label" htmlFor="qm-name">ФИО мастера<span className="req">*</span></label>
+          <input
+            id="qm-name"
+            className={`input ${errors.fullname ? 'invalid' : ''}`}
+            placeholder="Иванов Иван Иванович"
+            maxLength={100}
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
+            autoFocus
+          />
+          {errors.fullname && <span className="field-error">{errors.fullname}</span>}
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="qm-phone">Телефон<span className="req">*</span></label>
+          <input
+            id="qm-phone"
+            className={`input ${errors.phoneNumber ? 'invalid' : ''}`}
+            placeholder="89001234567"
+            maxLength={18}
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
+          {errors.phoneNumber && <span className="field-error">{errors.phoneNumber}</span>}
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="qm-tg">Telegram<span className="req">*</span></label>
+          <input
+            id="qm-tg"
+            className={`input ${errors.telegram ? 'invalid' : ''}`}
+            placeholder="@ivan_master"
+            value={telegram}
+            onChange={(e) => setTelegram(e.target.value)}
+          />
+          {errors.telegram && <span className="field-error">{errors.telegram}</span>}
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="qm-city">Город<span className="req">*</span></label>
+          <input
+            id="qm-city"
+            className={`input ${errors.city ? 'invalid' : ''}`}
+            placeholder="Москва"
+            maxLength={25}
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          {errors.city && <span className="field-error">{errors.city}</span>}
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="qm-percent">Комиссия, %<span className="req">*</span></label>
+          <input
+            id="qm-percent"
+            className={`input ${errors.commissionPercent ? 'invalid' : ''}`}
+            inputMode="numeric"
+            placeholder="10"
+            value={commissionPercent}
+            onChange={(e) => setCommissionPercent(e.target.value)}
+          />
+          {errors.commissionPercent && <span className="field-error">{errors.commissionPercent}</span>}
+        </div>
+        <div className="field span-2">
+          <label className="label" htmlFor="qm-spec">Специализации<span className="req">*</span></label>
+          <input
+            id="qm-spec"
+            className={`input ${errors.specialization ? 'invalid' : ''}`}
+            placeholder="TV, Phone, Стиральные машины"
+            value={specializationRaw}
+            onChange={(e) => setSpecializationRaw(e.target.value)}
+          />
+          <span className="hint">Через запятую: TV, Phone, Laptop…</span>
+          {errors.specialization && <span className="field-error">{errors.specialization}</span>}
+        </div>
+        <label className="field span-2" style={{ flexDirection: 'row', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+            style={{ width: 16, height: 16, accentColor: '#6366f1' }}
+          />
+          <span className="label" style={{ margin: 0 }}>Активен (доступен для назначения на заявки)</span>
+        </label>
+      </div>
+    </Modal>
+  )
+}
+
 /* ================= Модалка закрытия заявки ================= */
 
 const MAX_PRICE = 1_000_000
 
 function CompleteModal({
+  request,
   busy,
   onClose,
   onSubmit,
 }: {
+  request: ServiceRequest
   busy: boolean
   onClose: () => void
-  onSubmit: (dto: { totalPrice: number; directExpenses: number; masterPayout: number }) => void
+  onSubmit: (dto: { totalPrice: number; directExpenses: number; masterPayout?: number | null }) => void
 }) {
   const [totalPrice, setTotalPrice] = useState('')
   const [directExpenses, setDirectExpenses] = useState('')
   const [masterPayout, setMasterPayout] = useState('')
+  const [isManualPayout, setIsManualPayout] = useState(false)
+  const [master, setMaster] = useState<MasterDetailed | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  useEffect(() => {
+    if (request.masterId) {
+      getMaster(request.masterId)
+        .then(setMaster)
+        .catch(() => {})
+    }
+  }, [request.masterId])
+
   const num = (v: string) => (v.trim() === '' ? NaN : Number(v.replace(',', '.')))
+
+  // Автоматический пересчёт выплаты мастеру на основе его ставки
+  useEffect(() => {
+    if (isManualPayout) return
+    const total = num(totalPrice)
+    const exp = num(directExpenses)
+    if (!Number.isNaN(total) && total >= 0) {
+      const expensesVal = !Number.isNaN(exp) && exp > 0 ? exp : 0
+      const margin = Math.max(0, total - expensesVal)
+      const pct = master ? master.commissionPercent : 0
+      const autoAmount = Math.round((margin * pct) / 100)
+      setMasterPayout(String(autoAmount))
+    }
+  }, [totalPrice, directExpenses, master, isManualPayout])
 
   const validate = () => {
     const e: Record<string, string> = {}
@@ -682,7 +924,7 @@ function CompleteModal({
   return (
     <Modal
       title="Завершение заявки"
-      subtitle="Укажите итоговые суммы. После закрытия изменить их будет нельзя."
+      subtitle={request.equipmentType ? `Заявка · ${request.equipmentType}` : 'Укажите итоговые суммы'}
       onClose={onClose}
     >
       <div className="form-grid">
@@ -700,37 +942,69 @@ function CompleteModal({
           {errors.totalPrice && <span className="field-error">{errors.totalPrice}</span>}
         </div>
         <div className="field">
-          <label className="label" htmlFor="c-expenses">Прямые расходы, ₽</label>
+          <label className="label" htmlFor="c-expenses">Прямые расходы (запчасти), ₽</label>
           <input
             id="c-expenses"
             className={`input ${errors.directExpenses ? 'invalid' : ''}`}
             inputMode="decimal"
-            placeholder="300"
+            placeholder="0"
             value={directExpenses}
             onChange={(e) => setDirectExpenses(e.target.value)}
           />
           {errors.directExpenses && <span className="field-error">{errors.directExpenses}</span>}
         </div>
         <div className="field">
-          <label className="label" htmlFor="c-payout">Выплата мастеру, ₽</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <label className="label" htmlFor="c-payout" style={{ margin: 0 }}>
+              Выплата мастеру, ₽
+            </label>
+            {master && (
+              <span className="hint" style={{ margin: 0, fontSize: 11 }}>
+                Ставка: <strong>{master.commissionPercent}%</strong>
+              </span>
+            )}
+          </div>
           <input
             id="c-payout"
             className={`input ${errors.masterPayout ? 'invalid' : ''}`}
             inputMode="decimal"
             placeholder="1500"
             value={masterPayout}
-            onChange={(e) => setMasterPayout(e.target.value)}
+            onChange={(e) => {
+              setIsManualPayout(true)
+              setMasterPayout(e.target.value)
+            }}
           />
+          {isManualPayout && master && (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ fontSize: 11, padding: '2px 0', height: 'auto', color: '#6366f1', alignSelf: 'flex-start' }}
+              onClick={() => setIsManualPayout(false)}
+            >
+              ↺ Вернуть авторасчёт ({master.commissionPercent}%)
+            </button>
+          )}
           {errors.masterPayout && <span className="field-error">{errors.masterPayout}</span>}
         </div>
       </div>
 
-      <div className="profit-preview">
-        <span>Прибыль владельца</span>
-        <span className="v mono-num">{formatMoney(profit)}</span>
+      <div className="profit-preview" style={{ marginTop: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <span style={{ fontWeight: 600 }}>Прибыль владельца</span>
+          <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>
+            Стоимость − Запчасти − Выплата мастеру
+          </span>
+        </div>
+        <span
+          className="v mono-num"
+          style={{ color: profit >= 0 ? '#10b981' : '#ef4444', fontSize: 18, fontWeight: 800 }}
+        >
+          {formatMoney(profit)}
+        </span>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
         <button className="btn btn-ghost" onClick={onClose} disabled={busy}>Отмена</button>
         <button
           className="btn btn-primary"
@@ -739,8 +1013,8 @@ function CompleteModal({
             if (!validate()) return
             onSubmit({
               totalPrice: num(totalPrice),
-              directExpenses: num(directExpenses),
-              masterPayout: num(masterPayout),
+              directExpenses: num(directExpenses) || 0,
+              masterPayout: isManualPayout ? (num(masterPayout) || 0) : null,
             })
           }}
         >
