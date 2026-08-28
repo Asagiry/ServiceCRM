@@ -17,7 +17,7 @@ import type {
 } from './types'
 import { fireUnauthorized } from './authEvents'
 
-export const API_URL = import.meta.env.VITE_API_URL ?? ''
+export const API_URL = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_URL ?? '')
 
 const TOKEN_KEY = 'crm.auth'
 
