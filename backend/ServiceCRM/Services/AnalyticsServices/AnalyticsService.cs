@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Distributed;
@@ -71,8 +71,9 @@ namespace ServiceCRM.Services.AnalyticsServices
                     0.0 AS "MasterPayoutsToday",
                     0.0 AS "OwnerProfitToday"
                 FROM "ServiceRequests"
-                WHERE ("CreatedAt" >= @todayStart AND "CreatedAt" < @tomorrowStart)
-                   OR ("ScheduledAt" >= @todayStart AND "ScheduledAt" < @tomorrowStart);
+                WHERE NOT "IsDeleted"
+                  AND (("CreatedAt" >= @todayStart AND "CreatedAt" < @tomorrowStart)
+                   OR ("ScheduledAt" >= @todayStart AND "ScheduledAt" < @tomorrowStart));
                 """;
 
             var command = new CommandDefinition(
@@ -139,7 +140,8 @@ namespace ServiceCRM.Services.AnalyticsServices
                     0.0 AS "AdExpenses",
                     0.0 AS "OwnerProfit"
                 FROM "ServiceRequests"
-                WHERE "CreatedAt" >= @fromDate AND "CreatedAt" <= @toDate;
+                WHERE NOT "IsDeleted"
+                  AND "CreatedAt" >= @fromDate AND "CreatedAt" <= @toDate;
                 """;
             var sqlAdSpent = """
                 SELECT COALESCE(SUM("Amount"), 0) 
@@ -217,7 +219,8 @@ namespace ServiceCRM.Services.AnalyticsServices
 
             string leadSourcesSql = """
                 SELECT "Id", "Name" 
-                FROM "LeadSources";
+                FROM "LeadSources"
+                WHERE NOT "IsDeleted";
                 """;
 
             string totalRevenueSql = """
@@ -226,7 +229,8 @@ namespace ServiceCRM.Services.AnalyticsServices
                     COUNT(*) AS "RequestsCount",
                     COALESCE(SUM("TotalPrice"), 0) AS "TotalRevenue"
                 FROM "ServiceRequests"
-                WHERE "CreatedAt" >= @FromDate AND "CreatedAt" <= @ToDate
+                WHERE NOT "IsDeleted"
+                  AND "CreatedAt" >= @FromDate AND "CreatedAt" <= @ToDate
                 GROUP BY "LeadSourceId";
                 """;
 

@@ -39,8 +39,6 @@ namespace ServiceCRM
             modelBuilder.Entity<ServiceRequest>().HasQueryFilter(r => !r.IsDeleted);
             modelBuilder.Entity<Master>().HasQueryFilter(m => !m.IsDeleted);
             modelBuilder.Entity<LeadSource>().HasQueryFilter(s => !s.IsDeleted);
-            modelBuilder.Entity<Payment>().HasQueryFilter(p => !p.ServiceRequest!.IsDeleted);
-            modelBuilder.Entity<AdExpense>().HasQueryFilter(a => !a.LeadSource!.IsDeleted);
         }
 
         public void SetServiceRequestDb(ModelBuilder modelBuilder)

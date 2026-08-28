@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace ServiceCRM.DTOs.AuthDTOs
 {
@@ -8,11 +8,11 @@ namespace ServiceCRM.DTOs.AuthDTOs
         {
             RuleFor(x => x.Username)
                 .NotEmpty()
-                .Length(6, 20);
+                .Length(3, 30);
 
             RuleFor(x => x.Password)
                 .NotEmpty()
-                .Length(10, 20);
+                .Length(6, 50);
         }
     }
 }
