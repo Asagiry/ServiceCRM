@@ -1,4 +1,4 @@
-﻿## Backend / .NET
+## Backend / .NET
 **/[Bb]in/
 **/[Oo]bj/
 **/.vs/
@@ -19,6 +19,7 @@ frontend/.vite/
 .env
 **/*.env.local
 **/*.env.*.local
+docker-compose.override.yml
 
 ## OS & Media
 *.mp4
